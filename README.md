@@ -144,4 +144,6 @@ document wins over the code; after v1 ships, change the document first.
 ## Support
 
 - Plugin issues: <https://github.com/publicala/publica-now-wordpress/issues>
-- publica.now accounts, sales, payouts and print orders: <https://publica.now/support>
+- publica.now accounts, sales, payouts and print orders: <https://publica.now/contact>
+  (publica.now has no general `/support` page; the plugin's own **Support** row link
+  points at the WordPress.org forum, `Plugin::SUPPORT_URL`)
