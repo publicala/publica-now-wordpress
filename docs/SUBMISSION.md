@@ -70,25 +70,29 @@ Tick every line. Each one is a known first-pass rejection or an upload-blocking 
       masonry), lowercase filenames, PNG, each under 10 MB. All six exist at a uniform
       1280×800, verified 2026-08-28:
       1. Settings → Publica.now before connecting (paste the profile URL)
-      2. Connected: name, works count, profile link, Refresh / Disconnect. **No avatar and
-         no "Verified website" badge appear** — both need Layer-1 fields (`avatar_url`,
-         `website`) that the production API does not return yet, so the card shows the
-         initial-letter placeholder and the "add your website" hint. The `readme.txt`
-         caption is worded to match; do not re-word it to promise either until PR #395
-         is merged **and deployed**, then recapture.
+      2. Connected: real profile photo, name, works count, profile link, Refresh /
+         Disconnect. Recaptured 2026-08-28 after PR #395 shipped `avatar_url`, so the
+         avatar is now the creator's own image rather than the initial-letter
+         placeholder. **The "Verified website" badge is still absent** — the creator's
+         `website` is NULL in production, so the card shows the "add your website" hint
+         instead. The `readme.txt` caption describes that hint; do not re-word it to
+         promise the badge until `website` is populated and the shot is retaken.
       3. The Catalog block in the editor with its live preview and options
       4. The catalog on the front end: three-column grid with covers, prices, badges, Buy buttons
-      5. A single work with a sale price and the Order paperback button. ⚠️ **This one is
-         SIMULATED.** It was captured with the QA shim `dist/qa/mu-layer1.php`, which
-         injects `discount`, `print` and `rating` through the public `publicanow_work`
-         filter. Production returns none of those today, so no real site can currently
-         render this card. It proves the rendering works; it does **not** depict live
-         behaviour. Recapture against production once PR #395 is merged and deployed, or
-         the listing shows users a feature they cannot get.
+      5. A single work card on a page, from **real production data** — recaptured
+         2026-08-28 against the live API with no QA shim installed. It shows the work
+         "Why Do So Many Incompetent Men Become Leaders?": cover, EBOOK badge, author,
+         excerpt, `$13.37` with `Paperback $9.09`, and **Buy** next to **Order
+         paperback**. Only 3 of the creator's 20 works carry `print` data; this is one of
+         them. No sale badge and no rating appear, because production returns
+         `discount: null` and `rating: null` for every work — do not stage either.
+         (The previous frame here was simulated with `dist/qa/mu-layer1.php`; that shim
+         must stay out of `wp-content/mu-plugins/` when recapturing.)
       6. The shortcode cheat sheet on the settings screen
-- [ ] **Screenshots 2 and 5 recaptured after Layer 1 (#395) is deployed** — see above.
-      Also recapture 1–4 and 6 on a site whose `home_url()` is not `localhost:8888`; the
-      current set shows the local dev host in the connected card and in link previews.
+- [ ] **Screenshots 1, 3, 4 and 6 recaptured on a site whose `home_url()` is not
+      `localhost:8888`** — the current set shows the local dev host in the connected card
+      and in link previews. (2 and 5 were recaptured 2026-08-28 after Layer 1 shipped,
+      but still on the local host.)
 - [ ] **The GitHub repository exists and `main` is pushed.** As of 2026-08-28 the local
       clone has **no git remote** and `publicala/publica-now-wordpress` does not exist, so
       the workflows in `.github/` have never run. Create the repo, push `main`, and only
