@@ -208,3 +208,25 @@ jobs:
             vendor
             node_modules
           strict: false
+
+  # The org ruleset on main requires one status check named exactly
+  # "ci-success", so every job above has to funnel into a single aggregate.
+  # Without it no pull request in this repository can ever merge: the check
+  # is required, nothing produces it, and the branch stays BLOCKED forever.
+  # alls-green is what publicala/publicanow uses for the same purpose; the
+  # action is pinned to a commit SHA rather than a tag because it decides
+  # whether protected branches accept a merge.
+  #
+  # `if: !cancelled()` so that a cancelled run reports honestly instead of
+  # counting as green, and `jobs: toJSON(needs)` so a job that is skipped or
+  # fails is treated as failure — a bare `needs:` alone would let a skipped
+  # job pass silently.
+  ci-success:
+    name: ci-success
+    if: ${{ !cancelled() }}
+    needs: [php, javascript, build, contract, plugin-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}
