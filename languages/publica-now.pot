@@ -1,0 +1,1038 @@
+# Copyright (C) 2026 Publica.la
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Publica.now – Sell Ebooks, Audiobooks, Video & Print Books 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/publica-now\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-28T09:26:23+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: publica-now\n"
+
+#. Plugin Name of the plugin
+#: publica-now.php
+msgid "Publica.now – Sell Ebooks, Audiobooks, Video & Print Books"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: publica-now.php
+msgid "https://publica.now/wordpress"
+msgstr ""
+
+#. Description of the plugin
+#: publica-now.php
+msgid "Show your publica.now catalog on your site and sell PDF, EPUB, audio, video and print-on-demand books. Checkout happens on publica.now."
+msgstr ""
+
+#. Author of the plugin
+#: publica-now.php
+msgid "Publica.la"
+msgstr ""
+
+#. Author URI of the plugin
+#: publica-now.php
+msgid "https://publica.now"
+msgstr ""
+
+#: includes/class-api-client.php:204
+msgid "Publica.now refused to register this site as an API client."
+msgstr ""
+
+#: includes/class-api-client.php:438
+msgid "Publica.now did not issue an access token."
+msgstr ""
+
+#: includes/class-api-client.php:461
+#: includes/class-catalog.php:1033
+msgid "Publica.now returned a response the plugin could not read."
+msgstr ""
+
+#: includes/class-api-client.php:476
+msgid "Publica.now rejected the plugin’s credentials."
+msgstr ""
+
+#: includes/class-api-client.php:483
+msgid "Publica.now has no published record with that name."
+msgstr ""
+
+#. translators: %d: HTTP status code.
+#: includes/class-api-client.php:496
+#, php-format
+msgid "Publica.now answered with HTTP %d."
+msgstr ""
+
+#: includes/class-api-client.php:513
+msgid "Publica.now is rate limiting this site. The catalog will refresh shortly."
+msgstr ""
+
+#. translators: %s: transport error message from WordPress.
+#: includes/class-api-client.php:565
+#, php-format
+msgid "Could not reach publica.now: %s"
+msgstr ""
+
+#: includes/class-catalog.php:272
+msgid "Connect your publica.now account in Settings → Publica.now, or set the creator attribute."
+msgstr ""
+
+#: includes/class-catalog.php:362
+msgid "That is not a valid publica.now work id or slug."
+msgstr ""
+
+#: includes/class-catalog.php:1020
+msgid "That is not a valid publica.now creator slug or profile URL."
+msgstr ""
+
+#: includes/class-formatting.php:109
+msgid "Ebook"
+msgstr ""
+
+#: includes/class-formatting.php:110
+msgid "Audiobook"
+msgstr ""
+
+#: includes/class-formatting.php:111
+#: blocks/catalog/index.js:39
+msgid "Music"
+msgstr ""
+
+#: includes/class-formatting.php:112
+#: blocks/catalog/index.js:40
+msgid "Video"
+msgstr ""
+
+#: includes/class-formatting.php:113
+msgid "Course"
+msgstr ""
+
+#: includes/class-formatting.php:114
+msgid "Zine"
+msgstr ""
+
+#: includes/class-formatting.php:115
+#: blocks/catalog/index.js:43
+msgid "Photography"
+msgstr ""
+
+#: includes/class-formatting.php:116
+#: blocks/catalog/index.js:44
+msgid "Design"
+msgstr ""
+
+#: includes/class-formatting.php:117
+msgid "Printed book"
+msgstr ""
+
+#: includes/class-formatting.php:118
+#: blocks/buy-button/index.js:221
+#: blocks/buy-button/index.js:267
+#: blocks/work/index.js:218
+#: blocks/work/index.js:221
+#: blocks/work/index.js:273
+msgid "Work"
+msgstr ""
+
+#. translators: 1: average rating with one decimal, 2: number of ratings.
+#: includes/class-formatting.php:206
+#, php-format
+msgctxt "rating summary"
+msgid "★ %1$s (%2$s)"
+msgstr ""
+
+#. translators: 1: average rating with one decimal, 2: number of ratings.
+#: includes/class-formatting.php:227
+#, php-format
+msgid "Rated %1$s out of 5 by %2$s reader"
+msgid_plural "Rated %1$s out of 5 by %2$s readers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-links.php:271
+msgid "View on Publica.now"
+msgstr ""
+
+#: includes/class-links.php:287
+#: includes/class-settings.php:572
+msgid "Buy"
+msgstr ""
+
+#: includes/class-links.php:289
+msgid "Order paperback"
+msgstr ""
+
+#: includes/class-links.php:291
+msgid "Read free"
+msgstr ""
+
+#: includes/class-plugin.php:124
+msgid "Settings"
+msgstr ""
+
+#: includes/class-plugin.php:147
+msgid "Docs"
+msgstr ""
+
+#: includes/class-plugin.php:152
+msgid "Support"
+msgstr ""
+
+#: includes/class-privacy.php:64
+msgid "This site uses the Publica.now plugin to display a catalog of digital and printed works that are sold on publica.now, a service operated by Publica.la. The plugin does not process payments, deliver files or create customer accounts on this site, and it stores no data about buyers or visitors."
+msgstr ""
+
+#. translators: %s: this site's host name.
+#: includes/class-privacy.php:67
+#, php-format
+msgid "When you click a “Buy”, “Read free” or “Order paperback” button you leave this site for publica.now. Those links carry this site’s host name (%s) as a referral parameter so that publica.now can attribute the sale to this website. Any purchase, account or reading activity from that point on is governed by the publica.now privacy policy at https://publica.now/privacy."
+msgstr ""
+
+#: includes/class-privacy.php:70
+msgid "Cover images shown by the plugin are loaded directly from publica.now, so your browser sends publica.now the usual request information (such as your IP address and browser type) when a page with a catalog is displayed. The plugin sets no cookies of its own."
+msgstr ""
+
+#: includes/class-renderer.php:260
+msgid "Connect your Publica.now account under Settings → Publica.now to show your catalog here, or set the creator attribute."
+msgstr ""
+
+#: includes/class-renderer.php:273
+#: includes/class-renderer.php:869
+msgid "The Publica.now catalog service is not available on this site."
+msgstr ""
+
+#: includes/class-renderer.php:321
+msgid "No works to show yet."
+msgstr ""
+
+#. translators: %s: error message from the API client.
+#: includes/class-renderer.php:361
+#, php-format
+msgid "Showing a saved copy of the catalog because Publica.now could not be reached: %s"
+msgstr ""
+
+#: includes/class-renderer.php:396
+msgid "Choose a work: set the id attribute to a Publica.now work id or slug."
+msgstr ""
+
+#: includes/class-renderer.php:457
+msgid "Choose a work: set the work attribute to a Publica.now work id or slug."
+msgstr ""
+
+#: includes/class-renderer.php:487
+msgid "This work has no link to offer yet (it may be unpublished on Publica.now)."
+msgstr ""
+
+#: includes/class-renderer.php:879
+msgid "This work could not be found on Publica.now."
+msgstr ""
+
+#: includes/class-renderer.php:977
+msgid "This catalog is temporarily unavailable."
+msgstr ""
+
+#: includes/class-renderer.php:978
+msgid "This work is temporarily unavailable."
+msgstr ""
+
+#. translators: %s: creator name.
+#: includes/class-renderer.php:985
+#, php-format
+msgid "Browse %s on Publica.now"
+msgstr ""
+
+#: includes/class-renderer.php:986
+msgid "Browse on Publica.now"
+msgstr ""
+
+#. translators: 1: error message, 2: error code.
+#: includes/class-renderer.php:1000
+#, php-format
+msgid "Publica.now error: %1$s (%2$s)"
+msgstr ""
+
+#: includes/class-renderer.php:1002
+msgid "Connect your Publica.now account under Settings → Publica.now."
+msgstr ""
+
+#: includes/class-rest.php:318
+#: templates/work-card.php:141
+#: templates/work-inline.php:120
+msgid "Free"
+msgstr ""
+
+#: includes/class-settings.php:213
+msgid "Paste your publica.now profile URL (https://publica.now/creators/your-name) or just your creator slug."
+msgstr ""
+
+#. translators: %s: creator slug.
+#: includes/class-settings.php:226
+#, php-format
+msgid "No publica.now creator is published under “%s”. Check the URL of your public profile."
+msgstr ""
+
+#: includes/class-settings.php:306
+msgid "No publica.now account is connected."
+msgstr ""
+
+#: includes/class-settings.php:459
+#: includes/class-settings.php:460
+#: includes/class-settings.php:859
+#: includes/class-site-health.php:85
+#: includes/class-site-health.php:198
+msgid "Publica.now"
+msgstr ""
+
+#: includes/class-settings.php:475
+msgid "Display defaults"
+msgstr ""
+
+#: includes/class-settings.php:481
+msgid "Default layout"
+msgstr ""
+
+#: includes/class-settings.php:482
+msgid "Default columns"
+msgstr ""
+
+#: includes/class-settings.php:483
+msgid "Excerpts"
+msgstr ""
+
+#: includes/class-settings.php:484
+msgid "Ratings"
+msgstr ""
+
+#: includes/class-settings.php:485
+#: blocks/buy-button/index.js:235
+#: blocks/catalog/index.js:248
+#: blocks/work/index.js:241
+msgid "Button text"
+msgstr ""
+
+#: includes/class-settings.php:486
+msgid "Links"
+msgstr ""
+
+#: includes/class-settings.php:487
+msgid "Cache"
+msgstr ""
+
+#: includes/class-settings.php:488
+msgid "Credit"
+msgstr ""
+
+#: includes/class-settings.php:512
+msgid "Defaults for every catalog, work and button you place. Each block and shortcode can override them."
+msgstr ""
+
+#: includes/class-settings.php:537
+#: blocks/catalog/index.js:63
+msgid "Grid"
+msgstr ""
+
+#: includes/class-settings.php:538
+#: blocks/catalog/index.js:64
+msgid "List"
+msgstr ""
+
+#: includes/class-settings.php:551
+msgid "Columns in the grid layout on wide screens (1–6)."
+msgstr ""
+
+#: includes/class-settings.php:562
+msgid "Seconds to keep catalog data before asking publica.now again. Default 900 (15 minutes). A copy is always kept for 7 days in case publica.now is unreachable."
+msgstr ""
+
+#: includes/class-settings.php:573
+msgid "Replaces the “Buy” label. “Read free” and “Order paperback” stay as they are."
+msgstr ""
+
+#: includes/class-settings.php:578
+msgid "Show the excerpt on cards"
+msgstr ""
+
+#: includes/class-settings.php:582
+msgid "Show the rating when a work has one"
+msgstr ""
+
+#: includes/class-settings.php:586
+msgid "Open publica.now in a new tab"
+msgstr ""
+
+#: includes/class-settings.php:590
+msgid "Show a small “Powered by Publica.now” line under catalogs"
+msgstr ""
+
+#: includes/class-settings.php:690
+msgid "Publica.now is ready."
+msgstr ""
+
+#: includes/class-settings.php:691
+msgid "Connect your publica.now account to start showing your books on this site."
+msgstr ""
+
+#: includes/class-settings.php:696
+msgid "Connect now"
+msgstr ""
+
+#: includes/class-settings.php:701
+msgid "Dismiss"
+msgstr ""
+
+#. translators: %s: creator name.
+#: includes/class-settings.php:742
+#, php-format
+msgid "Connected to %s."
+msgstr ""
+
+#: includes/class-settings.php:756
+msgid "Disconnected. Your settings were kept."
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/class-settings.php:774
+#, php-format
+msgid "Cache cleared, but publica.now could not be reached: %s"
+msgstr ""
+
+#: includes/class-settings.php:780
+msgid "Catalog refreshed."
+msgstr ""
+
+#: includes/class-settings.php:790
+#: includes/class-settings.php:816
+#: includes/class-settings.php:851
+msgid "You are not allowed to do that."
+msgstr ""
+
+#: includes/class-settings.php:862
+msgid "Sandbox mode is on: the plugin reads publica.now’s fixture catalog, not real data."
+msgstr ""
+
+#: includes/class-settings.php:882
+msgid "Your publica.now account"
+msgstr ""
+
+#: includes/class-settings.php:885
+msgid "Paste the URL of your public profile on publica.now. The plugin reads your published works from there — nothing is written to your account."
+msgstr ""
+
+#: includes/class-settings.php:890
+msgid "Profile URL or creator slug"
+msgstr ""
+
+#: includes/class-settings.php:895
+msgid "Connect"
+msgstr ""
+
+#: includes/class-settings.php:920
+#: includes/class-site-health.php:224
+msgid "Verified website"
+msgstr ""
+
+#. translators: %s: number of works.
+#: includes/class-settings.php:930
+#, php-format
+msgid "%s published work"
+msgid_plural "%s published works"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-settings.php:935
+msgid "View profile on publica.now"
+msgstr ""
+
+#. translators: %s: this site's home URL.
+#: includes/class-settings.php:944
+#, php-format
+msgid "Add %s as your website on publica.now to show the “Verified website” badge here."
+msgstr ""
+
+#: includes/class-settings.php:956
+msgid "Refresh catalog"
+msgstr ""
+
+#: includes/class-settings.php:964
+msgid "Disconnect this publica.now account? Your catalog blocks will stop rendering until you connect again."
+msgstr ""
+
+#: includes/class-settings.php:965
+msgid "Disconnect"
+msgstr ""
+
+#. translators: %s: human time difference.
+#: includes/class-settings.php:979
+#, php-format
+msgid "Profile last checked %s ago."
+msgstr ""
+
+#: includes/class-settings.php:999
+msgid "Save display defaults"
+msgstr ""
+
+#: includes/class-settings.php:1015
+#: blocks/catalog/index.js:132
+msgid "Catalog"
+msgstr ""
+
+#: includes/class-settings.php:1016
+msgid "A grid or list of your works. Block: “Publica.now Catalog”."
+msgstr ""
+
+#: includes/class-settings.php:1021
+msgid "Single work"
+msgstr ""
+
+#: includes/class-settings.php:1022
+msgid "One work as a card or an inline row. Block: “Publica.now Work”."
+msgstr ""
+
+#: includes/class-settings.php:1027
+msgid "Buy button"
+msgstr ""
+
+#: includes/class-settings.php:1028
+msgid "Just the button, anywhere in your text. Block: “Publica.now Buy Button”."
+msgstr ""
+
+#: includes/class-settings.php:1035
+msgid "Use it"
+msgstr ""
+
+#: includes/class-settings.php:1036
+msgid "In the block editor, search for “Publica.now” to insert a Catalog, a Work or a Buy Button. Anywhere else, use the shortcodes below."
+msgstr ""
+
+#: includes/class-settings.php:1039
+msgid "Connect your account above and the examples will be filled in with your creator slug."
+msgstr ""
+
+#: includes/class-settings.php:1055
+msgid "Copy"
+msgstr ""
+
+#: includes/class-settings.php:1060
+msgid "Attributes:"
+msgstr ""
+
+#: includes/class-settings.php:1077
+msgid "New to Publica.now?"
+msgstr ""
+
+#: includes/class-settings.php:1078
+msgid "Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 20% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site."
+msgstr ""
+
+#: includes/class-settings.php:1082
+msgid "Start selling on Publica.now"
+msgstr ""
+
+#: includes/class-site-health.php:65
+msgid "Publica.now connection"
+msgstr ""
+
+#: includes/class-site-health.php:92
+msgid "Open Publica.now settings"
+msgstr ""
+
+#: includes/class-site-health.php:99
+msgid "Publica.now is not connected"
+msgstr ""
+
+#: includes/class-site-health.php:100
+msgid "The plugin is active but no publica.now account is connected, so catalog blocks and shortcodes have nothing to show. Paste your profile URL in the settings to connect."
+msgstr ""
+
+#: includes/class-site-health.php:120
+msgid "The connected publica.now creator is no longer published"
+msgstr ""
+
+#. translators: %s: creator slug.
+#: includes/class-site-health.php:124
+#, php-format
+msgid "publica.now has no published creator under “%s” any more. Catalog blocks will show only a fallback link until you connect a valid profile."
+msgstr ""
+
+#: includes/class-site-health.php:134
+msgid "Publica.now cannot be reached; a cached catalog is being shown"
+msgstr ""
+
+#. translators: 1: error message, 2: human time difference.
+#: includes/class-site-health.php:138
+#, php-format
+msgid "The last request to publica.now failed (%1$s). Visitors still see the catalog cached %2$s ago; it will refresh automatically once publica.now answers again."
+msgstr ""
+
+#: includes/class-site-health.php:145
+msgid "Publica.now cannot be reached and nothing is cached"
+msgstr ""
+
+#. translators: %s: error message.
+#: includes/class-site-health.php:149
+#, php-format
+msgid "The request to publica.now failed (%s) and no cached copy of the catalog exists, so catalog blocks show only a link to your publica.now page. Check that this server can make outbound HTTPS requests to publica.now."
+msgstr ""
+
+#: includes/class-site-health.php:161
+msgid "Publica.now is connected"
+msgstr ""
+
+#. translators: 1: creator name, 2: number of works, 3: cache TTL in minutes.
+#: includes/class-site-health.php:165
+#, php-format
+msgid "Connected to %1$s (%2$s published works). Catalog data is cached for %3$s minutes and a 7-day copy is kept for outages."
+msgstr ""
+
+#: includes/class-site-health.php:173
+msgid "No catalog is cached right now; the first visit to a page with a catalog block will fetch it."
+msgstr ""
+
+#: includes/class-site-health.php:199
+msgid "State of the Publica.now plugin. Nothing here identifies a buyer; the OAuth secret is not included."
+msgstr ""
+
+#: includes/class-site-health.php:202
+msgid "Plugin version"
+msgstr ""
+
+#: includes/class-site-health.php:206
+msgid "API base"
+msgstr ""
+
+#: includes/class-site-health.php:210
+msgid "Sandbox"
+msgstr ""
+
+#: includes/class-site-health.php:211
+#: includes/class-site-health.php:225
+#: includes/class-site-health.php:254
+msgid "Yes"
+msgstr ""
+
+#: includes/class-site-health.php:211
+#: includes/class-site-health.php:225
+#: includes/class-site-health.php:249
+#: includes/class-site-health.php:254
+msgid "No"
+msgstr ""
+
+#: includes/class-site-health.php:215
+msgid "Connected creator slug"
+msgstr ""
+
+#: includes/class-site-health.php:216
+msgid "Not connected"
+msgstr ""
+
+#: includes/class-site-health.php:220
+msgid "Connected creator name"
+msgstr ""
+
+#: includes/class-site-health.php:229
+msgid "Profile last checked"
+msgstr ""
+
+#. translators: %s: human time difference.
+#: includes/class-site-health.php:233
+#, php-format
+msgid "%s ago"
+msgstr ""
+
+#: includes/class-site-health.php:240
+msgid "Cache TTL (seconds)"
+msgstr ""
+
+#: includes/class-site-health.php:244
+msgid "Cache generation"
+msgstr ""
+
+#: includes/class-site-health.php:248
+msgid "Catalog cached"
+msgstr ""
+
+#: includes/class-site-health.php:249
+msgid "Yes (fresh)"
+msgstr ""
+
+#: includes/class-site-health.php:249
+msgid "Stale copy only"
+msgstr ""
+
+#: includes/class-site-health.php:253
+msgid "Access token cached"
+msgstr ""
+
+#: includes/class-site-health.php:258
+msgid "OAuth client registered"
+msgstr ""
+
+#. translators: %s: date.
+#: includes/class-site-health.php:262
+#, php-format
+msgid "Yes, on %s"
+msgstr ""
+
+#: includes/class-site-health.php:265
+msgid "No (registered on first use)"
+msgstr ""
+
+#: includes/class-structured-data.php:202
+#: templates/work-card.php:54
+#: templates/work-inline.php:53
+msgid "Untitled"
+msgstr ""
+
+#. translators: 1: required PHP version, 2: required WordPress version, 3: running PHP version, 4: running WordPress version.
+#: publica-now.php:104
+#, php-format
+msgid "Publica.now requires PHP %1$s and WordPress %2$s or newer. This site runs PHP %3$s and WordPress %4$s, so the plugin stays inactive."
+msgstr ""
+
+#. translators: %s: percentage discount (number only).
+#: templates/work-card.php:107
+#, php-format
+msgid "%s%% off"
+msgstr ""
+
+#. translators: %s: author name.
+#: templates/work-card.php:126
+#: templates/work-inline.php:112
+#, php-format
+msgctxt "author byline"
+msgid "by %s"
+msgstr ""
+
+#. translators: %s: paperback price.
+#: templates/work-card.php:146
+#: templates/work-card.php:169
+#, php-format
+msgid "Paperback %s"
+msgstr ""
+
+#: templates/work-card.php:155
+#: templates/work-inline.php:125
+msgid "Was"
+msgstr ""
+
+#. translators: %s: localised date the sale ends.
+#: templates/work-card.php:160
+#: templates/work-inline.php:130
+#, php-format
+msgid "ends %s"
+msgstr ""
+
+#: blocks/buy-button/index.js:37
+msgid "Automatic (Buy, Read free or Order paperback)"
+msgstr ""
+
+#: blocks/buy-button/index.js:38
+msgid "Digital (Buy or Read free)"
+msgstr ""
+
+#: blocks/buy-button/index.js:39
+msgid "Printed copy (Order paperback)"
+msgstr ""
+
+#. translators: %s: what the user typed.
+#: blocks/buy-button/index.js:160
+#: blocks/work/index.js:160
+#, js-format
+msgid "Use “%s” as the work id or slug"
+msgstr ""
+
+#: blocks/buy-button/index.js:209
+#: blocks/work/index.js:209
+msgid "Connect your Publica.now account under Settings → Publica.now to search your works. You can still type a work id or slug."
+msgstr ""
+
+#: blocks/buy-button/index.js:218
+#: blocks/catalog/index.js:246
+msgid "Button"
+msgstr ""
+
+#: blocks/buy-button/index.js:222
+#: blocks/buy-button/index.js:268
+#: blocks/work/index.js:222
+#: blocks/work/index.js:274
+msgid "Search by title, or type a work id or slug."
+msgstr ""
+
+#: blocks/buy-button/index.js:227
+msgid "Which button"
+msgstr ""
+
+#: blocks/buy-button/index.js:236
+msgid "Leave empty for Buy / Read free / Order paperback."
+msgstr ""
+
+#: blocks/buy-button/index.js:243
+#: blocks/catalog/index.js:256
+#: blocks/work/index.js:249
+msgid "Extra CSS class"
+msgstr ""
+
+#: blocks/buy-button/index.js:259
+#: blocks/buy-button/index.js:283
+msgid "Publica.now Buy Button"
+msgstr ""
+
+#: blocks/buy-button/index.js:260
+msgid "Pick one of your Publica.now works. The button sends readers to publica.now to buy, read or order a printed copy."
+msgstr ""
+
+#: blocks/buy-button/index.js:284
+msgid "The button renders on the published page."
+msgstr ""
+
+#: blocks/catalog/index.js:36
+msgid "All types"
+msgstr ""
+
+#: blocks/catalog/index.js:37
+msgid "Ebooks"
+msgstr ""
+
+#: blocks/catalog/index.js:38
+msgid "Audiobooks"
+msgstr ""
+
+#: blocks/catalog/index.js:41
+msgid "Courses"
+msgstr ""
+
+#: blocks/catalog/index.js:42
+msgid "Zines"
+msgstr ""
+
+#: blocks/catalog/index.js:45
+msgid "Printed books"
+msgstr ""
+
+#: blocks/catalog/index.js:49
+msgid "Free and paid"
+msgstr ""
+
+#: blocks/catalog/index.js:50
+msgid "Only free works"
+msgstr ""
+
+#: blocks/catalog/index.js:51
+msgid "Only paid works"
+msgstr ""
+
+#: blocks/catalog/index.js:55
+msgid "Newest first"
+msgstr ""
+
+#: blocks/catalog/index.js:56
+msgid "Oldest first"
+msgstr ""
+
+#: blocks/catalog/index.js:57
+msgid "Title A–Z"
+msgstr ""
+
+#: blocks/catalog/index.js:58
+msgid "Price: low to high"
+msgstr ""
+
+#: blocks/catalog/index.js:59
+msgid "Price: high to low"
+msgstr ""
+
+#: blocks/catalog/index.js:137
+msgid "Not connected yet. Connect your Publica.now account under Settings → Publica.now, or enter a creator slug below."
+msgstr ""
+
+#: blocks/catalog/index.js:141
+msgid "Creator"
+msgstr ""
+
+#: blocks/catalog/index.js:142
+msgid "Publica.now creator slug or profile URL. Leave empty to use the connected account."
+msgstr ""
+
+#: blocks/catalog/index.js:149
+msgid "Content type"
+msgstr ""
+
+#: blocks/catalog/index.js:157
+msgid "Price"
+msgstr ""
+
+#: blocks/catalog/index.js:165
+msgid "Order"
+msgstr ""
+
+#: blocks/catalog/index.js:173
+msgid "Number of works"
+msgstr ""
+
+#: blocks/catalog/index.js:174
+msgid "0 shows every work."
+msgstr ""
+
+#: blocks/catalog/index.js:182
+msgid "Only these works"
+msgstr ""
+
+#: blocks/catalog/index.js:183
+#: blocks/catalog/index.js:191
+msgid "Work ids or slugs, comma separated."
+msgstr ""
+
+#: blocks/catalog/index.js:190
+msgid "Hide these works"
+msgstr ""
+
+#: blocks/catalog/index.js:200
+#: blocks/catalog/index.js:202
+#: blocks/work/index.js:227
+msgid "Layout"
+msgstr ""
+
+#: blocks/catalog/index.js:211
+msgid "Columns"
+msgstr ""
+
+#: blocks/catalog/index.js:220
+msgid "Show content type"
+msgstr ""
+
+#: blocks/catalog/index.js:226
+msgid "Show author"
+msgstr ""
+
+#: blocks/catalog/index.js:232
+msgid "Show rating"
+msgstr ""
+
+#: blocks/catalog/index.js:238
+#: blocks/work/index.js:235
+msgid "Show excerpt"
+msgstr ""
+
+#: blocks/catalog/index.js:249
+msgid "Replaces the primary button label. Leave empty for Buy / Read free / Order paperback."
+msgstr ""
+
+#: blocks/catalog/index.js:270
+#: blocks/catalog/index.js:282
+msgid "Publica.now Catalog"
+msgstr ""
+
+#: blocks/catalog/index.js:271
+msgid "Connect your Publica.now account under Settings → Publica.now, or enter a creator slug in the block settings, to show a catalog here."
+msgstr ""
+
+#: blocks/catalog/index.js:283
+msgid "The catalog renders on the published page."
+msgstr ""
+
+#: blocks/work/index.js:38
+msgid "Card"
+msgstr ""
+
+#: blocks/work/index.js:39
+msgid "Inline row"
+msgstr ""
+
+#: blocks/work/index.js:242
+msgid "Replaces the main button label. Leave empty for Buy / Read free / Order paperback."
+msgstr ""
+
+#: blocks/work/index.js:265
+#: blocks/work/index.js:289
+msgid "Publica.now Work"
+msgstr ""
+
+#: blocks/work/index.js:266
+msgid "Pick one of your Publica.now works to show it with its cover, price and button."
+msgstr ""
+
+#: blocks/work/index.js:290
+msgid "The work renders on the published page."
+msgstr ""
+
+#: blocks/buy-button/block.json
+msgctxt "block title"
+msgid "Publica.now Buy Button"
+msgstr ""
+
+#: blocks/buy-button/block.json
+msgctxt "block description"
+msgid "A single Buy / Read free / Order paperback button for one of your Publica.now works. Checkout happens on publica.now."
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "publica"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "ebook"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "audiobook"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "sell"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "print"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "book"
+msgstr ""
+
+#: blocks/buy-button/block.json
+#: blocks/catalog/block.json
+#: blocks/work/block.json
+msgctxt "block keyword"
+msgid "shop"
+msgstr ""
+
+#: blocks/catalog/block.json
+msgctxt "block title"
+msgid "Publica.now Catalog"
+msgstr ""
+
+#: blocks/catalog/block.json
+msgctxt "block description"
+msgid "Show your Publica.now works as a grid or list: covers, prices, badges and Buy / Read free / Order paperback buttons that send readers to publica.now."
+msgstr ""
+
+#: blocks/work/block.json
+msgctxt "block title"
+msgid "Publica.now Work"
+msgstr ""
+
+#: blocks/work/block.json
+msgctxt "block description"
+msgid "Show one of your Publica.now works as a card or a compact row, with its cover, price and a button that sends readers to publica.now."
+msgstr ""

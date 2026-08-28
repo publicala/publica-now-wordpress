@@ -1,0 +1,63 @@
+# Files excluded from the distributable plugin (the WordPress.org zip and the SVN trunk).
+#
+# Consumed by bin/build-zip.sh (rsync --exclude-from) and understood by
+# `wp dist-archive` and 10up/action-wordpress-plugin-deploy. Patterns follow
+# rsync semantics: a leading "/" anchors to the repository root, a bare name
+# matches at any depth. Lines starting with "#" are comments.
+#
+# WordPress.org's Plugin Check treats ANY dotfile in the zip as an error, so
+# every dotfile and dot-directory the repo carries must be listed here.
+
+# Version control and hosting
+/.git
+/.github
+/.gitignore
+/.gitattributes
+/.gitkeep
+.gitkeep
+
+# Build, packaging and QA tooling
+/.distignore
+/.editorconfig
+/.wp-env.json
+/.wp-env.override.json
+/.phpcs-cache
+/.phpunit.result.cache
+/phpcs.xml.dist
+/phpcs.xml
+/phpunit.xml.dist
+/phpunit.xml
+/composer.json
+/composer.lock
+/package.json
+/package-lock.json
+/node_modules
+/vendor
+/dist
+/bin
+/docs
+/tests
+
+# WordPress.org listing assets live in SVN /assets, never inside the plugin
+/.wordpress-org
+
+# GitHub-facing documents; readme.txt is the only readme WordPress.org reads
+/*.md
+
+# Editor and agent directories
+/.idea
+/.vscode
+/.claude
+/.cursor
+/.gstack
+/CLAUDE.md
+/AGENTS.md
+
+# Operating-system and editor debris
+.DS_Store
+Thumbs.db
+*.log
+*.orig
+*.rej
+*.swp
+*~

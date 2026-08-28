@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<ruleset name="Publica.now" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+	<description>Coding standards for the Publica.now WordPress plugin: WordPress + WordPress-Extra + PHPCompatibilityWP for PHP 7.4 and newer.</description>
+
+	<!-- Scan the plugin root; excluded paths below. -->
+	<file>.</file>
+
+	<!-- Dev tooling, build output and listing assets are never part of the plugin. -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<exclude-pattern>*/.wordpress-org/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/bin/*</exclude-pattern>
+	<exclude-pattern>*/.git/*</exclude-pattern>
+
+	<!-- Only PHP is sniffed; CSS/JS follow their own tooling. -->
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="parallel" value="8"/>
+	<!-- Show sniff codes (s) and progress (p) so a violation can be looked up and, if truly justified, ignored inline. -->
+	<arg value="sp"/>
+	<arg name="cache" value=".phpcs-cache"/>
+
+	<!-- The plugin declares "Requires at least: 6.2" and "Requires PHP: 7.4"; the sniffs must enforce the same floor. -->
+	<config name="minimum_supported_wp_version" value="6.2"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<!-- WordPress includes WordPress-Core, WordPress-Docs and WordPress-Extra; Extra is listed explicitly per the build contract. -->
+	<rule ref="WordPress"/>
+	<rule ref="WordPress-Extra"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Every translatable string must use the plugin's text domain, which equals the WordPress.org slug. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="publica-now"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Everything global is prefixed: functions/options/hooks `publicanow_`, the namespace `PublicaNow`, constants `PUBLICANOW_`. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="publicanow"/>
+				<element value="PublicaNow"/>
+				<element value="PUBLICANOW"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+	 Class files follow WPCS naming (Api_Client → class-api-client.php), so the
+	 default strict FileName sniff stays on. Templates and blocks/*/render.php
+	 contain no classes and are unaffected. The one exception is
+	 blocks/*/index.asset.php: WordPress core itself dictates that name
+	 ({editorScript}.asset.php, read by register_block_type() for the script
+	 dependencies), so the hyphenation rule cannot apply to it.
+	-->
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>*/blocks/*/index.asset.php</exclude-pattern>
+	</rule>
+</ruleset>

@@ -1,0 +1,91 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "publica-now/catalog",
+	"title": "Publica.now Catalog",
+	"category": "widgets",
+	"icon": "book-alt",
+	"description": "Show your Publica.now works as a grid or list: covers, prices, badges and Buy / Read free / Order paperback buttons that send readers to publica.now.",
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"textdomain": "publica-now",
+	"attributes": {
+		"creator": {
+			"type": "string",
+			"default": ""
+		},
+		"content_type": {
+			"type": "string",
+			"default": ""
+		},
+		"free": {
+			"type": "string",
+			"default": "any"
+		},
+		"ids": {
+			"type": "string",
+			"default": ""
+		},
+		"exclude": {
+			"type": "string",
+			"default": ""
+		},
+		"order": {
+			"type": "string",
+			"default": "newest"
+		},
+		"limit": {
+			"type": "number",
+			"default": 12
+		},
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"layout": {
+			"type": "string",
+			"default": "grid"
+		},
+		"show_excerpt": {
+			"type": "boolean",
+			"default": true
+		},
+		"show_rating": {
+			"type": "boolean",
+			"default": true
+		},
+		"show_author": {
+			"type": "boolean",
+			"default": true
+		},
+		"show_type": {
+			"type": "boolean",
+			"default": true
+		},
+		"button_text": {
+			"type": "string",
+			"default": ""
+		},
+		"class": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"limit": 3,
+			"columns": 3,
+			"show_excerpt": false
+		}
+	},
+	"style": "publica-now",
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

@@ -1,0 +1,38 @@
+# Dependencies (dev tooling only; the shipped plugin has no vendor/ or node_modules/)
+/vendor/
+/node_modules/
+
+# Build output: bin/build-zip.sh writes dist/publica-now/ and dist/publica-now-{version}.zip
+/dist/
+
+# Lock files are not committed: the toolchain is dev-only and every consumer
+# resolves fresh against the ranges in composer.json / package.json.
+/composer.lock
+/package-lock.json
+
+# Tool caches
+/.phpcs-cache
+/.phpunit.result.cache
+
+# Local wp-env overrides (ports, PHP version, extra plugins) stay on each machine
+/.wp-env.override.json
+
+# Compiled translations are served by translate.wordpress.org, never committed
+/languages/*.mo
+/languages/*.po
+/languages/*.json
+
+# Editors and agents
+/.idea/
+/.vscode/
+/.claude/settings.local.json
+/.gstack/
+*.swp
+*~
+
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

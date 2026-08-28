@@ -1,0 +1,38 @@
+# EditorConfig for the Publica.now WordPress plugin.
+# Mirrors the WordPress Coding Standards: tabs for code, LF line endings,
+# a final newline everywhere. https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[package.json]
+indent_style = space
+indent_size = 2
+
+[composer.json]
+indent_style = space
+indent_size = 4
+
+[*.md]
+# Two trailing spaces are a hard line break in Markdown.
+trim_trailing_whitespace = false
+
+[readme.txt]
+# The WordPress.org readme parser is whitespace-sensitive around section markers.
+trim_trailing_whitespace = false
+
+[*.pot]
+indent_style = space
+
+[LICENSE]
+indent_style = space
+trim_trailing_whitespace = false

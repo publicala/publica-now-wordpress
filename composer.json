@@ -1,0 +1,52 @@
+{
+    "name": "publicala/publica-now-wordpress",
+    "description": "Development tooling for the Publica.now WordPress plugin. The plugin itself has no runtime dependencies and ships without vendor/.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://publica.now/wordpress",
+    "authors": [
+        {
+            "name": "Publica.la",
+            "homepage": "https://publica.now"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/publicala/publica-now-wordpress/issues",
+        "source": "https://github.com/publicala/publica-now-wordpress"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "squizlabs/php_codesniffer": "^3.13",
+        "wp-coding-standards/wpcs": "^3.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "sort-packages": true,
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "lint:fix": "phpcbf",
+        "lint:summary": "phpcs --report=summary",
+        "lint:syntax": "find . -path ./vendor -prune -o -path ./node_modules -prune -o -path ./dist -prune -o -name '*.php' -print0 | xargs -0 -n1 -P4 php -l 1>/dev/null",
+        "lint:all": [
+            "@lint:syntax",
+            "@lint"
+        ]
+    },
+    "scripts-descriptions": {
+        "lint": "Run PHP_CodeSniffer with the WordPress, WordPress-Extra and PHPCompatibilityWP (7.4+) rulesets.",
+        "lint:fix": "Auto-fix what phpcbf can fix.",
+        "lint:summary": "PHPCS violations grouped per file.",
+        "lint:syntax": "php -l every plugin file (fails on parse errors only).",
+        "lint:all": "Syntax check, then the full coding-standards run."
+    }
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Publica.now icon (raster source)</title>
+<!--
+	Raster source for .wordpress-org/icon-128x128.png and icon-256x256.png.
+	The mark itself lives in assets/images/icon.svg (single source of truth);
+	this page only places it at an exact pixel size in the top-left corner.
+
+	Why a fixed size instead of 100vw: headless Chrome clamps small windows to
+	a minimum size and then crops the screenshot to the requested
+	--window-size, so the viewport can be larger than the output. Anchoring
+	the icon at (0,0) with explicit dimensions makes the crop exact.
+
+	Open as icon.html?size=128 or icon.html?size=256 (default 256).
+-->
+<style>
+	html, body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: transparent;
+	}
+	img {
+		position: absolute;
+		left: 0;
+		top: 0;
+		display: block;
+		width: 256px;
+		height: 256px;
+	}
+</style>
+</head>
+<body>
+	<img id="icon" src="../../assets/images/icon.svg" alt="Publica.now" width="256" height="256">
+	<script>
+		(function () {
+			var size = parseInt( new URLSearchParams( window.location.search ).get( 'size' ), 10 );
+			if ( size > 0 ) {
+				var img = document.getElementById( 'icon' );
+				img.style.width  = size + 'px';
+				img.style.height = size + 'px';
+				img.setAttribute( 'width', size );
+				img.setAttribute( 'height', size );
+			}
+		})();
+	</script>
+</body>
+</html>

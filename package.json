@@ -1,0 +1,36 @@
+{
+  "name": "publica-now-wordpress",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Development environment for the Publica.now WordPress plugin. The plugin has no JavaScript build step; this package only provides wp-env and Plugin Check.",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://publica.now/wordpress",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/publicala/publica-now-wordpress.git"
+  },
+  "bugs": {
+    "url": "https://github.com/publicala/publica-now-wordpress/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "wp-env": "wp-env",
+    "start": "wp-env start",
+    "stop": "wp-env stop",
+    "destroy": "wp-env destroy",
+    "check:install": "wp-env run cli wp plugin install plugin-check --force --activate",
+    "precheck": "npm run check:install",
+    "check": "wp-env run cli wp plugin check publica-now --exclude-directories=vendor,node_modules,dist,.wordpress-org",
+    "precheck:repo": "npm run check:install",
+    "check:repo": "wp-env run cli wp plugin check publica-now --categories=plugin_repo --error-severity=7 --warning-severity=6 --include-low-severity-errors --exclude-directories=vendor,node_modules,dist,.wordpress-org --format=table",
+    "pot": "wp-env run cli bash -c \"php -d memory_limit=512M /usr/local/bin/wp i18n make-pot wp-content/plugins/publica-now wp-content/plugins/publica-now/languages/publica-now.pot --slug=publica-now --domain=publica-now --exclude=vendor,node_modules,dist,bin,docs,tests,.wordpress-org\"",
+    "lint:js": "for f in blocks/*/index.js; do [ -e \"$f\" ] && node --check \"$f\"; done",
+    "build": "bash bin/build-zip.sh",
+    "assets": "bash bin/make-assets.sh"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^11.14.0"
+  }
+}

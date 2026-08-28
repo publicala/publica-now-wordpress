@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "publica-now/buy-button",
+	"title": "Publica.now Buy Button",
+	"category": "widgets",
+	"icon": "cart",
+	"description": "A single Buy / Read free / Order paperback button for one of your Publica.now works. Checkout happens on publica.now.",
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"textdomain": "publica-now",
+	"attributes": {
+		"work": {
+			"type": "string",
+			"default": ""
+		},
+		"text": {
+			"type": "string",
+			"default": ""
+		},
+		"format": {
+			"type": "string",
+			"default": "auto"
+		},
+		"class": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"format": "auto"
+		}
+	},
+	"style": "publica-now",
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

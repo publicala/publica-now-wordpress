@@ -1,0 +1,49 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "publica-now/work",
+	"title": "Publica.now Work",
+	"category": "widgets",
+	"icon": "book",
+	"description": "Show one of your Publica.now works as a card or a compact row, with its cover, price and a button that sends readers to publica.now.",
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"textdomain": "publica-now",
+	"attributes": {
+		"id": {
+			"type": "string",
+			"default": ""
+		},
+		"layout": {
+			"type": "string",
+			"default": "card"
+		},
+		"show_excerpt": {
+			"type": "boolean",
+			"default": true
+		},
+		"button_text": {
+			"type": "string",
+			"default": ""
+		},
+		"class": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"layout": "card",
+			"show_excerpt": false
+		}
+	},
+	"style": "publica-now",
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

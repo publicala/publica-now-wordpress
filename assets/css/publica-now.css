@@ -1,0 +1,451 @@
+/**
+ * Publica.now for WordPress — front-end styles.
+ *
+ * Scoped under .publicanow so the theme is never touched. Text colour and
+ * font family are inherited from the theme on purpose: cards sit on the
+ * page rather than in their own box, so contrast is the theme's and always
+ * holds. Coral appears only on the primary button and the sale price.
+ */
+
+.publicanow {
+	--publicanow-accent: #e05a2b;
+	--publicanow-accent-text: #c24a1f; /* darker coral: 4.9:1 on white for text uses */
+	--publicanow-on-accent: #1a1816;   /* fixed in both schemes: 4.7:1 on #e05a2b, 6:1 on #ff6b35 */
+	--publicanow-ink: #1a1816;
+	--publicanow-paper: #fafaf7;
+	--publicanow-muted: #6b6560;
+	--publicanow-border: rgba(26, 24, 22, 0.14);
+	--publicanow-radius: 12px;
+	--publicanow-cover-shadow: 0 1px 2px rgba(26, 24, 22, 0.14), 0 10px 24px -10px rgba(26, 24, 22, 0.4);
+	--publicanow-cover-shadow-hover: 0 2px 4px rgba(26, 24, 22, 0.14), 0 18px 32px -12px rgba(26, 24, 22, 0.45);
+	--publicanow-columns: 3;
+	--publicanow-gap: 1.5rem;
+	box-sizing: border-box;
+	line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+	.publicanow {
+		--publicanow-accent: #ff6b35;
+		--publicanow-accent-text: #ff8a5c;
+		--publicanow-ink: #f2efea;
+		--publicanow-paper: #1e1b19;
+		--publicanow-muted: #a39c95;
+		--publicanow-border: rgba(242, 239, 234, 0.16);
+		--publicanow-cover-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 24px -10px rgba(0, 0, 0, 0.8);
+		--publicanow-cover-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 32px -12px rgba(0, 0, 0, 0.9);
+	}
+}
+
+.publicanow *,
+.publicanow *::before,
+.publicanow *::after {
+	box-sizing: inherit;
+}
+
+/* Lists ------------------------------------------------------------------ */
+
+.publicanow-grid,
+.publicanow-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.publicanow-grid {
+	display: grid;
+	grid-template-columns: repeat(var(--publicanow-columns, 3), minmax(0, 1fr));
+	gap: var(--publicanow-gap);
+}
+
+.publicanow-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--publicanow-gap);
+}
+
+.publicanow-grid__item,
+.publicanow-list__item {
+	margin: 0;
+	padding: 0;
+	min-width: 0;
+}
+
+@media (max-width: 640px) {
+	.publicanow-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+}
+
+@media (max-width: 400px) {
+	.publicanow-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* Card ------------------------------------------------------------------- */
+
+.publicanow-card {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.publicanow-work--card .publicanow-card {
+	max-width: 18rem;
+}
+
+.publicanow-card__cover-link,
+.publicanow-inline__cover {
+	display: block;
+	text-decoration: none;
+}
+
+.publicanow-cover {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 2 / 3;
+	object-fit: cover;
+	border-radius: calc(var(--publicanow-radius) / 2);
+	box-shadow: var(--publicanow-cover-shadow);
+	transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.publicanow-card:hover .publicanow-cover,
+.publicanow-card:focus-within .publicanow-cover {
+	transform: translateY(-4px);
+	box-shadow: var(--publicanow-cover-shadow-hover);
+}
+
+/* Typographic fallback cover: duotone from one hue, chosen per work by crc32(slug). */
+.publicanow-cover--fallback {
+	--publicanow-hue: 20;
+	display: flex;
+	align-items: flex-end;
+	padding: 8% 10%;
+	background: linear-gradient(160deg, hsl(var(--publicanow-hue), 32%, 36%) 0%, hsl(var(--publicanow-hue), 40%, 17%) 100%);
+	color: #fff;
+}
+
+.publicanow-cover__title {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 5;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+	font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.publicanow-hue-0 { --publicanow-hue: 12; }
+.publicanow-hue-1 { --publicanow-hue: 42; }
+.publicanow-hue-2 { --publicanow-hue: 72; }
+.publicanow-hue-3 { --publicanow-hue: 102; }
+.publicanow-hue-4 { --publicanow-hue: 132; }
+.publicanow-hue-5 { --publicanow-hue: 162; }
+.publicanow-hue-6 { --publicanow-hue: 192; }
+.publicanow-hue-7 { --publicanow-hue: 222; }
+.publicanow-hue-8 { --publicanow-hue: 252; }
+.publicanow-hue-9 { --publicanow-hue: 282; }
+.publicanow-hue-10 { --publicanow-hue: 312; }
+.publicanow-hue-11 { --publicanow-hue: 342; }
+
+.publicanow-card__body {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding-top: 0.9rem;
+}
+
+.publicanow-card__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.publicanow-badge {
+	display: inline-block;
+	padding: 0.35em 0.65em;
+	border: 1px solid var(--publicanow-border);
+	border-radius: 999px;
+	background: var(--publicanow-paper);
+	color: var(--publicanow-ink);
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+.publicanow-badge--sale {
+	border-color: currentColor;
+	background: transparent;
+	color: var(--publicanow-accent-text);
+}
+
+.publicanow-card__title,
+.publicanow-inline__title {
+	margin: 0;
+	font-size: 1.05rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.publicanow-card__title a,
+.publicanow-inline__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.publicanow-card__title a:hover,
+.publicanow-inline__title a:hover {
+	text-decoration: underline;
+}
+
+.publicanow-card__author,
+.publicanow-card__rating,
+.publicanow-card__excerpt,
+.publicanow-inline__meta,
+.publicanow-inline__excerpt {
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.publicanow-card__author,
+.publicanow-inline__author {
+	opacity: 0.75;
+}
+
+.publicanow-card__excerpt,
+.publicanow-inline__excerpt {
+	line-height: 1.5;
+	opacity: 0.85;
+}
+
+/* Price ------------------------------------------------------------------ */
+
+.publicanow-price {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.45em;
+	margin: 0.25rem 0 0;
+	font-size: 1rem;
+}
+
+.publicanow-price__current,
+.publicanow-price__free {
+	font-weight: 700;
+}
+
+.publicanow-price--sale .publicanow-price__current {
+	color: var(--publicanow-accent-text);
+}
+
+.publicanow-price__list {
+	opacity: 0.7;
+}
+
+.publicanow-price__ends,
+.publicanow-price__print {
+	font-size: 0.85rem;
+	opacity: 0.8;
+}
+
+/* Buttons ---------------------------------------------------------------- */
+
+.publicanow-card__actions,
+.publicanow-inline__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding-top: 0.75rem;
+}
+
+.publicanow-buy-button {
+	display: inline-block;
+}
+
+.publicanow-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.5rem;
+	padding: 0.55em 1.15em;
+	border: 1.5px solid transparent;
+	border-radius: var(--publicanow-radius);
+	font: inherit;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+.publicanow-button:hover,
+.publicanow-button:focus-visible {
+	text-decoration: none;
+}
+
+.publicanow-button--primary {
+	border-color: var(--publicanow-accent);
+	background: var(--publicanow-accent);
+	color: var(--publicanow-on-accent);
+}
+
+.publicanow-button--primary:hover {
+	filter: brightness(0.93);
+	color: var(--publicanow-on-accent);
+}
+
+.publicanow-button--secondary {
+	border-color: var(--publicanow-muted);
+	background: transparent;
+	color: inherit;
+}
+
+.publicanow-button--secondary:hover {
+	border-color: currentColor;
+	color: inherit;
+}
+
+.publicanow-button:focus-visible,
+.publicanow-card__title a:focus-visible,
+.publicanow-inline__title a:focus-visible,
+.publicanow-empty__link:focus-visible {
+	outline: 3px solid var(--publicanow-accent);
+	outline-offset: 3px;
+}
+
+/* List layout: the same card, turned horizontal --------------------------- */
+
+.publicanow-catalog--list .publicanow-card {
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 1.25rem;
+}
+
+.publicanow-catalog--list .publicanow-card__cover-link {
+	flex: 0 0 clamp(96px, 18%, 160px);
+}
+
+.publicanow-catalog--list .publicanow-card__body {
+	padding-top: 0;
+}
+
+@media (max-width: 400px) {
+	.publicanow-catalog--list .publicanow-card {
+		flex-direction: column;
+	}
+
+	.publicanow-catalog--list .publicanow-card__cover-link {
+		flex-basis: auto;
+		width: 60%;
+	}
+}
+
+/* Inline work ------------------------------------------------------------ */
+
+.publicanow-inline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+}
+
+.publicanow-inline__cover {
+	flex: 0 0 4.5rem;
+}
+
+.publicanow-inline .publicanow-cover--fallback {
+	padding: 6%;
+}
+
+.publicanow-inline .publicanow-cover__title {
+	-webkit-line-clamp: 4;
+	font-size: 0.6rem;
+}
+
+.publicanow-inline__body {
+	display: flex;
+	flex: 1 1 12rem;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0;
+}
+
+.publicanow-inline__title {
+	font-size: 1rem;
+}
+
+.publicanow-inline__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6em;
+}
+
+.publicanow-inline__meta .publicanow-price {
+	margin: 0;
+	font-size: 0.95rem;
+}
+
+.publicanow-inline__actions {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+/* Empty state, notices, utilities ---------------------------------------- */
+
+.publicanow-empty__text {
+	margin: 0;
+	opacity: 0.85;
+}
+
+.publicanow-empty__link {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.publicanow-empty__admin,
+.publicanow-notice {
+	display: block;
+	margin-top: 0.5rem;
+	font-size: 0.8rem;
+	opacity: 0.8;
+}
+
+.publicanow-notice--stale {
+	margin-top: 1rem;
+}
+
+.publicanow-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.publicanow-cover,
+	.publicanow-button {
+		transition: none;
+	}
+
+	.publicanow-card:hover .publicanow-cover,
+	.publicanow-card:focus-within .publicanow-cover {
+		transform: none;
+	}
+}

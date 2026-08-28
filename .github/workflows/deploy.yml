@@ -1,0 +1,148 @@
+# Publishing to the WordPress.org plugin directory (SVN).
+#
+# Two jobs, both gated on repository secrets that exist ONLY after the plugin
+# has been approved and the SVN credentials email has arrived
+# (see docs/SUBMISSION.md, "Add the GitHub secrets"):
+#
+#   SVN_USERNAME  the WordPress.org username that owns the plugin (case-sensitive)
+#   SVN_PASSWORD  the SVN password from https://profiles.wordpress.org/me/profile/edit/group/3/
+#                 (this is NOT the WordPress.org login password)
+#
+# release   on a published GitHub release, build dist/publica-now with
+#           bin/build-zip.sh and commit it to trunk/ + tags/{version}/, plus
+#           .wordpress-org/ to assets/. The release tag must equal the plugin
+#           Version header and the readme Stable tag (e.g. 1.0.0 or v1.0.0).
+#
+# assets    on a push to main that only touches readme.txt or .wordpress-org/,
+#           update SVN assets/ and trunk/readme.txt without cutting a release
+#           (banner/icon/screenshot refreshes, "Tested up to" bumps).
+#
+# Until the secrets exist both jobs stop at the first step with an explicit
+# message instead of failing inside the SVN action.
+name: Deploy to WordPress.org
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - readme.txt
+      - .wordpress-org/**
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Build and stage everything, but do not commit to SVN'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release ${{ github.event.release.tag_name || 'dry run' }} to SVN
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require SVN credentials
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          if [ -z "$SVN_USERNAME" ] || [ -z "$SVN_PASSWORD" ]; then
+            echo "::error::SVN_USERNAME / SVN_PASSWORD secrets are not set. They are added only after WordPress.org approves the plugin (docs/SUBMISSION.md)."
+            exit 1
+          fi
+
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up PHP (for php -l inside the build script)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      # build-zip.sh already refuses to run when the Version header, the
+      # PUBLICANOW_VERSION constant and the readme Stable tag disagree.
+      - name: Build dist/publica-now
+        run: bash bin/build-zip.sh
+
+      - name: Read the plugin version
+        id: version
+        run: |
+          set -euo pipefail
+          version="$(sed -nE 's/^[[:space:]]*\*?[[:space:]]*Version:[[:space:]]*([0-9][0-9.]*)[[:space:]]*$/\1/p' publica-now.php | head -n1)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "plugin version $version"
+
+      - name: Verify the release tag matches the plugin version
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -euo pipefail
+          if [ "${TAG#v}" != "$VERSION" ]; then
+            echo "::error::release tag $TAG does not match the plugin Version header $VERSION"
+            exit 1
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
+            echo "::error::pre-releases are never deployed to WordPress.org (there is no unpublish)"
+            exit 1
+          fi
+
+      # Commits dist/publica-now to trunk/ and tags/{VERSION}/ and .wordpress-org to assets/.
+      # VERSION is passed explicitly (instead of the action's default, the git
+      # ref) so a manual dry run from main uses the real plugin version too.
+      - name: Deploy to WordPress.org SVN
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          generate-zip: true
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: publica-now
+          BUILD_DIR: dist/publica-now
+          ASSETS_DIR: .wordpress-org
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Keep the deployed zip with the run
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: wporg-deployed-zip
+          path: ${{ github.workspace }}/*.zip
+          if-no-files-found: ignore
+
+  assets:
+    name: Update readme.txt and assets/ in SVN
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require SVN credentials
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        run: |
+          if [ -z "$SVN_USERNAME" ] || [ -z "$SVN_PASSWORD" ]; then
+            echo "::error::SVN_USERNAME / SVN_PASSWORD secrets are not set. They are added only after WordPress.org approves the plugin (docs/SUBMISSION.md)."
+            exit 1
+          fi
+
+      - name: Check out
+        uses: actions/checkout@v7
+
+      # Pushes readme.txt to trunk/ (and to the tag named by "Stable tag" when
+      # it exists) and syncs .wordpress-org/ to assets/. No code is touched.
+      - name: Update WordPress.org readme and assets
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: publica-now
+          ASSETS_DIR: .wordpress-org
+          README_NAME: readme.txt
