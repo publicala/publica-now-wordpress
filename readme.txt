@@ -1,4 +1,5 @@
 === Publica.now ===
+Contributors: publicala
 Tags: ebook, audiobook, sell digital products, print on demand, bookstore
 Requires at least: 6.2
 Tested up to: 7.1
@@ -85,10 +86,10 @@ Yes. Each site connects its own account; settings, cache and credentials are per
 == Screenshots ==
 
 1. Settings → Publica.now before connecting: paste your profile URL.
-2. Connected: name, works count, profile link and the Refresh catalog / Disconnect actions. A "Verified website" badge appears when your publica.now website matches this site.
+2. Connected: your profile photo, name, works count, profile link and the Refresh catalog / Disconnect actions, plus the prompt to list this site as your publica.now website and earn the "Verified website" badge.
 3. The Catalog block in the editor, with its live preview and options.
 4. The catalog on the front end: covers, prices, badges and Buy buttons in a three-column grid.
-5. A work card during a sale: discount badge, sale price with the list price struck through, end date, rating and paperback button.
+5. A single work placed on a page: cover, type badge, title, author, excerpt, the ebook price with the paperback price beside it, and Buy next to Order paperback.
 6. The shortcode cheat sheet on the settings screen.
 
 == Changelog ==
