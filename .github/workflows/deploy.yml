@@ -17,8 +17,12 @@
 #           update SVN assets/ and trunk/readme.txt without cutting a release
 #           (banner/icon/screenshot refreshes, "Tested up to" bumps).
 #
-# Until the secrets exist both jobs stop at the first step with an explicit
-# message instead of failing inside the SVN action.
+# Until the secrets exist both jobs run, report a ::notice:: saying nothing was
+# published, and SKIP the SVN step — they do not fail. Before approval that is
+# the normal state, and a job that goes red on every readme change until then
+# just teaches everyone to ignore a red X. The release job still builds the zip
+# and still fails loudly on a tag/version mismatch or a pre-release, because
+# those are real faults; and once the secrets exist, any SVN error fails too.
 name: Deploy to WordPress.org
 
 on:
@@ -45,14 +49,23 @@ jobs:
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Require SVN credentials
+      # Before approval the SVN credentials do not exist yet, and that is the
+      # normal state — not a broken build. Failing here would paint main red
+      # on every readme change until the plugin is approved, which is exactly
+      # how a team learns to ignore a red X. So: report and skip. Once the
+      # secrets DO exist, any SVN problem still fails loudly, because then it
+      # really is a fault.
+      - name: Check for SVN credentials
+        id: creds
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         run: |
           if [ -z "$SVN_USERNAME" ] || [ -z "$SVN_PASSWORD" ]; then
-            echo "::error::SVN_USERNAME / SVN_PASSWORD secrets are not set. They are added only after WordPress.org approves the plugin (docs/SUBMISSION.md)."
-            exit 1
+            echo "::notice::SVN_USERNAME / SVN_PASSWORD are not set, so nothing was published to WordPress.org. They are added only after the plugin is approved (docs/SUBMISSION.md). Skipping."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check out
@@ -98,6 +111,7 @@ jobs:
       # VERSION is passed explicitly (instead of the action's default, the git
       # ref) so a manual dry run from main uses the real plugin version too.
       - name: Deploy to WordPress.org SVN
+        if: steps.creds.outputs.present == 'true'
         # Pinned to a commit SHA, not a moving tag: this step runs with
         # SVN_USERNAME / SVN_PASSWORD in its environment.
         uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # v2.3.0
@@ -125,14 +139,23 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Require SVN credentials
+      # Before approval the SVN credentials do not exist yet, and that is the
+      # normal state — not a broken build. Failing here would paint main red
+      # on every readme change until the plugin is approved, which is exactly
+      # how a team learns to ignore a red X. So: report and skip. Once the
+      # secrets DO exist, any SVN problem still fails loudly, because then it
+      # really is a fault.
+      - name: Check for SVN credentials
+        id: creds
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         run: |
           if [ -z "$SVN_USERNAME" ] || [ -z "$SVN_PASSWORD" ]; then
-            echo "::error::SVN_USERNAME / SVN_PASSWORD secrets are not set. They are added only after WordPress.org approves the plugin (docs/SUBMISSION.md)."
-            exit 1
+            echo "::notice::SVN_USERNAME / SVN_PASSWORD are not set, so nothing was published to WordPress.org. They are added only after the plugin is approved (docs/SUBMISSION.md). Skipping."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check out
@@ -141,6 +164,7 @@ jobs:
       # Pushes readme.txt to trunk/ (and to the tag named by "Stable tag" when
       # it exists) and syncs .wordpress-org/ to assets/. No code is touched.
       - name: Update WordPress.org readme and assets
+        if: steps.creds.outputs.present == 'true'
         # Pinned to a commit SHA, not a moving tag: this step runs with
         # SVN_USERNAME / SVN_PASSWORD in its environment.
         uses: 10up/action-wordpress-plugin-asset-update@2480306f6f693672726d08b5917ea114cb2825f7 # v2.2.0
