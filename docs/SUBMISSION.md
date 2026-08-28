@@ -6,8 +6,9 @@ here was verified against WordPress.org's handbook, the upload form's source cod
 Plugin Check 2.1.0 on 2026-08-28; where a rule has changed since, the linked page wins.
 
 Target listing: `https://wordpress.org/plugins/publica-now/` — slug **`publica-now`**,
-display name **Publica.now – Sell Ebooks, Audiobooks, Video & Print Books**, version
-**1.0.0**.
+display name **Publica.now** (the `Plugin Name:` header and the `=== … ===` readme title
+are the same short string, which is what makes the slug derive correctly; see §3.1),
+version **1.0.0**.
 
 ---
 
@@ -17,16 +18,21 @@ WordPress.org ties the plugin, the SVN repository and the trademark exception to
 **account that uploads**. Decide it first; it cannot be changed later without a support
 request.
 
-1. **Use `publicala`**, the username in `readme.txt` → `Contributors: publicala`.
-   - Check it exists: https://profiles.wordpress.org/publicala/ . If it returns 404,
-     register it at https://login.wordpress.org/register **with an `@publica.la`
-     mailbox** (see 3). If someone else owns that username, pick another one (for
-     example `publicanow`) and change the `Contributors:` line in `readme.txt` before
-     building — a contributor that is not a real WordPress.org username is a Plugin
-     Check error, and the profile link on the listing would be dead.
-   - Pablo's personal account works too, but then `Contributors:` must list *that*
-     username and the ownership checkbox in the form ("I am using a WordPress.org account
-     that accurately represents the plugin owner") is answered as a company employee.
+1. **Target username: `publicala`.**
+   - `readme.txt` deliberately carries **no `Contributors:` line** today, because the
+     account does not exist yet and a contributor that is not a real WordPress.org
+     username is a Plugin Check error with a dead profile link on the listing. The header
+     is optional; the uploading account becomes the owner regardless.
+   - Check whether the name is free: https://profiles.wordpress.org/publicala/ . A 404
+     means it is available — register it at https://login.wordpress.org/register **with
+     an `@publica.la` mailbox** (see 3). If someone else owns it, pick another (for
+     example `publicanow`).
+   - **Once the account exists**, add `Contributors: {that exact username}` as the first
+     line of `readme.txt`, rebuild the zip, and re-run `npm run check:repo`. Do this
+     before uploading, not after.
+   - Pablo's personal account works too; the ownership checkbox in the form ("I am using
+     a WordPress.org account that accurately represents the plugin owner") is then
+     answered as a company employee.
 2. **Enable two-factor authentication** on the account
    (https://profiles.wordpress.org/me/profile/edit/group/3/ → Two-Factor). The upload
    form refuses to load without it (mandatory since 2024-10-01).
@@ -58,16 +64,37 @@ Tick every line. Each one is a known first-pass rejection or an upload-blocking 
       `Plugin URI:` header, the "Docs" plugin-row link and a link in the readme.
       Reviewers click Plugin URIs; a 404 is an easy "incomplete" verdict. (Today it is a
       404 — Layer 3 ships after the plugin stabilises.)
-- [ ] **Screenshots captured** into `.wordpress-org/screenshot-1.png … screenshot-6.png`,
+- [x] **Screenshots captured** into `.wordpress-org/screenshot-1.png … screenshot-6.png`,
       one per line of `readme.txt` → *Screenshots*, in that order, all the **same aspect
       ratio** (the June 2026 gallery lays uniform sets out as a grid, mixed sets as
-      masonry), lowercase filenames, PNG, each under 10 MB:
+      masonry), lowercase filenames, PNG, each under 10 MB. All six exist at a uniform
+      1280×800, verified 2026-08-28:
       1. Settings → Publica.now before connecting (paste the profile URL)
-      2. Connected: name, avatar, works count, "verified website" badge
+      2. Connected: name, works count, profile link, Refresh / Disconnect. **No avatar and
+         no "Verified website" badge appear** — both need Layer-1 fields (`avatar_url`,
+         `website`) that the production API does not return yet, so the card shows the
+         initial-letter placeholder and the "add your website" hint. The `readme.txt`
+         caption is worded to match; do not re-word it to promise either until PR #395
+         is merged **and deployed**, then recapture.
       3. The Catalog block in the editor with its live preview and options
       4. The catalog on the front end: three-column grid with covers, prices, badges, Buy buttons
-      5. A single work with a sale price and the Order paperback button
+      5. A single work with a sale price and the Order paperback button. ⚠️ **This one is
+         SIMULATED.** It was captured with the QA shim `dist/qa/mu-layer1.php`, which
+         injects `discount`, `print` and `rating` through the public `publicanow_work`
+         filter. Production returns none of those today, so no real site can currently
+         render this card. It proves the rendering works; it does **not** depict live
+         behaviour. Recapture against production once PR #395 is merged and deployed, or
+         the listing shows users a feature they cannot get.
       6. The shortcode cheat sheet on the settings screen
+- [ ] **Screenshots 2 and 5 recaptured after Layer 1 (#395) is deployed** — see above.
+      Also recapture 1–4 and 6 on a site whose `home_url()` is not `localhost:8888`; the
+      current set shows the local dev host in the connected card and in link previews.
+- [ ] **The GitHub repository exists and `main` is pushed.** As of 2026-08-28 the local
+      clone has **no git remote** and `publicala/publica-now-wordpress` does not exist, so
+      the workflows in `.github/` have never run. Create the repo, push `main`, and only
+      then tick the next box. Until this is done, the `Source:` URL in the Additional
+      Information text and the support/issues links in `readme.txt` and `README.md` are
+      dead links a reviewer may click.
 - [ ] **CI is green on `main`** (PHPCS on PHP 7.4 and 8.3, `php -l`, block script syntax,
       Plugin Check `plugin_repo`, zip build). `https://github.com/publicala/publica-now-wordpress/actions`
 - [ ] **Plugin Check locally, both modes** — this is exactly what the upload form runs
@@ -185,26 +212,34 @@ failure returns an error and the plugin is not queued; fix and upload again.
 
 The slug is generated from the `Plugin Name:` header by removing every character outside
 `a-z 0-9 space _ . -`, turning `_` into `-` and running `sanitize_title_with_dashes()`
-(which converts `.` to `-`). With the header
-`Publica.now – Sell Ebooks, Audiobooks, Video & Print Books` the **assigned slug will be
-`publica-now-sell-ebooks-audiobooks-video-print-books`**, not `publica-now`.
+(which converts `.` to `-`).
 
-The submission page shows *"Current assigned slug: …"* with a **change** link. You may
-change the slug **once**, only before the review starts:
+**This is already handled: no slug-change request is needed.** The header is the short
+`Plugin Name: Publica.now`, so the pipeline yields `publica-now` by construction —
+verified on 2026-08-28 by running WordPress's own functions over the real header string:
 
-1. Click **change** → the "Request to change your plugin slug" dialog.
-2. **Desired Slug:** `publica-now`
-3. Tick "I confirm that my slug choice meets the guidelines for plugin slugs." → **Request**.
+```
+"Publica.now"  →  remove_accents      →  "Publica.now"
+               →  preg_replace         →  "Publica.now"
+               →  "_" → "-"            →  "Publica.now"
+               →  sanitize_title_with_dashes → "publica-now"
+```
 
-The page warns that the chosen slug "cannot be guaranteed, and is subject to change based
-on the results of your review" — a brand slug from the brand's verified owner is exactly
-the case Guideline 17 allows, so expect it to stand. If the change link is not shown, or
-if you prefer a deterministic slug, use the alternative **before** uploading: set
-`Plugin Name: Publica.now` in `publica-now.php` (one line; the readme's `=== … ===` title
-stays long and is what the directory displays), rebuild, upload — the generated slug is
-then `publica-now` by construction. Plugin Check will show a `mismatched_plugin_name`
-**warning** (not an error) for the header/readme difference; note it in Additional
-Information. Once a plugin is approved the slug can never change.
+`readme.txt` opens with `=== Publica.now ===`, the **same** string, so Plugin Check
+raises no `mismatched_plugin_name` warning either (confirmed: the `plugin_repo` gate on
+the built zip is completely clean). The listing's display name is therefore
+**Publica.now**, not a long marketing string.
+
+After the upload, still check the submission page's *"Current assigned slug: …"* line and
+confirm it reads `publica-now`. If — and only if — it does not, you may change the slug
+**once**, before the review starts: click **change** → *Desired Slug:* `publica-now` →
+tick "I confirm that my slug choice meets the guidelines for plugin slugs." → **Request**.
+A brand slug from the brand's verified owner is exactly the case Guideline 17 allows.
+Once a plugin is approved the slug can never change.
+
+Do **not** lengthen `Plugin Name:` back into a keyword string: that is what would force
+the slug-change request, and it would also reintroduce the `mismatched_plugin_name`
+warning. Keyword reach comes from the `Tags:` line and the short description instead.
 
 ### 3.2 Also on the submission page
 
@@ -235,7 +270,7 @@ Information. Once a plugin is approved the slug can never change.
   weeks"). Approvals in 2025: 69.5 % of reviewed plugins; 38.7 % of plugins never
   answered the review e-mail and were closed.
 - Issues arrive in **one e-mail thread** with the subject
-  `[WordPress Plugin Directory] Review in Progress: Publica.now – Sell Ebooks, Audiobooks, Video & Print Books`
+  `[WordPress Plugin Directory] Review in Progress: Publica.now`
   (the display name at that point). Answer in that thread: **Reply All**, keep the subject
   line, keep the quoted history. Never open a new thread and never re-submit the plugin
   for a review issue — "DO NOT resubmit your plugin if it was rejected for any other
@@ -358,7 +393,7 @@ job stays mandatory on every pull request.
 | 2 | **Undocumented external service** (Common issues; checklist "Serviceware requirements") | Every render may call publica.now; visitors load covers from it. | `readme.txt` → *External Services*: what is sent, when, what is received, ToS + privacy links (both verified 200 on 2026-08-28). The account requirement is stated in Installation, FAQ and on the settings page. |
 | 3 | **Phone-home without consent** (Guideline 7) | A plugin that called the API on activation or in Site Health before connecting would fail. | No request is made until Connect is clicked; no version pings, no telemetry. Verified in code: `Site_Health::test_connection()` returns "not connected" before any request, and the REST `works`/`status` routes answer `publicanow_not_connected` without calling the API. Re-check after any change to those two files. |
 | 4 | **Trademark / ownership of a brand-first slug** (Guideline 17) | Name and slug begin with "Publica.now". | Submitted from the company account with a company e-mail; proof of publica.now control ready (§0.3). |
-| 5 | **Generated slug is not `publica-now`** | Slug derives from the long `Plugin Name`. | §3.1: one-time slug change request, or the short-header alternative. |
+| 5 | **Generated slug is not `publica-now`** | The slug derives from `Plugin Name:`. | **Closed.** The header is the short `Publica.now`, which the WordPress.org pipeline turns into `publica-now` by construction (reproduced against the real header, §3.1). No slug-change request needed; just confirm the assigned slug after upload. |
 | 6 | **Remote assets** (Guideline 8; Plugin Check `offloading_files`) | Covers and avatars are served by publica.now. | They are service content returned by the API (allowed, disclosed). All CSS/JS/icons ship in the zip; no hardcoded `<img src="https://…">` strings in PHP; no CDN hosts anywhere. |
 | 7 | **Unescaped output / unsanitised input / missing nonces** (the top three rejection reasons) | Any plugin. | PHPCS `WordPress-Extra` (EscapeOutput, ValidatedSanitizedInput, NonceVerification) blocks CI; all admin POSTs use `check_admin_referer` + `manage_options`; REST routes have permission callbacks; templates escape at output. |
 | 8 | **Prefixing** (Plugin Check `prefixing`, excluded from the upload gate but read by reviewers) | Any plugin. | Everything is `publicanow_` / `PublicaNow` / `PUBLICANOW_`; PHPCS `PrefixAllGlobals` enforces it. |

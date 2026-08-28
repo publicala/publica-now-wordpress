@@ -143,7 +143,7 @@ Everything lives in the options and user-meta tables; the plugin writes no files
 | option | `publicanow_creator` | yes | last validated creator payload + `fetched_at` + `website_matches` | until Disconnect / uninstall |
 | option | `publicanow_activated_at` | yes | Unix time of first activation; drives the one-time connect notice | until uninstall |
 | option | `publicanow_cache_gen` | yes | integer generation counter mixed into cache keys so a purge is O(1) even on object caches that cannot enumerate keys | until uninstall |
-| transient | `publicanow_token` | — | bearer token | `expires_in − 300` s |
+| transient | `publicanow_token_{env}` | — | bearer token; `{env}` is the first 12 hex of `md5( api_base \| sandbox )`, so production and sandbox never share one | `expires_in − 300` s |
 | transient | `publicanow_c_{md5}` | — | fresh cache entry (`works:{slug}`, `work:{id}`, `creator:{slug}`) | `cache_ttl` (default 900 s, filter `publicanow_cache_ttl`) |
 | transient | `publicanow_s_{md5}` | — | stale copy of the same entry | 7 days |
 | user meta | `publicanow_notice_dismissed` | — | the admin dismissed the connect notice | until uninstall |
@@ -154,8 +154,16 @@ bumps the generation, deletes `_transient_publicanow_%` and
 object-cache group where supported, then fires `publicanow_cache_purged`.
 
 **Deactivation** drops cache and token but keeps settings and the OAuth client, so
-re-activating does not re-register. **Uninstall** (`uninstall.php`) revokes the client
-(`POST /oauth/revoke`), then deletes every option, transient and user-meta row above.
+re-activating does not re-register. **Uninstall** (`uninstall.php`) deletes every option,
+transient and user-meta row above. Its `POST /oauth/revoke` call is a best-effort
+fallback that in practice does not fire: WordPress deactivates a plugin before running
+its uninstaller, and deactivation has already deleted the token transient the revoke
+would present, so the guard returns early. The token is read-only (`catalog:read`) and
+expires on its own within the hour. **Disconnect** is the path that actually revokes —
+it runs while the token is still cached (`Settings::disconnect()` →
+`Api_Client::revoke()` → `forget_client()`). Publica.now exposes no client-revocation
+endpoint (`/oauth/revoke` revokes only the token presented), so the registered client
+row itself is never deleted remotely by either path; it is simply abandoned.
 On multisite each site has its own set; network activation loops over sites.
 
 ### 3.1 What leaves the site

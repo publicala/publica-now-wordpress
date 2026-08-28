@@ -124,7 +124,7 @@ made on translate.wordpress.org once the plugin is listed; no `.mo` files ship.
 
 ```
 publica-now.php          plugin header, constants, autoloader, bootstrap
-uninstall.php            removes options and transients, revokes the API client
+uninstall.php            removes options, transients and user meta (revoke is best effort)
 includes/                PublicaNow\* classes (class-{kebab}.php)
 blocks/{catalog,work,buy-button}/   block.json, render.php, index.js
 templates/               theme-overridable PHP templates
