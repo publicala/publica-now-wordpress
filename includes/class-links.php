@@ -27,18 +27,19 @@ final class Links {
 	/**
 	 * Base URL of the publica.now instance the plugin talks to.
 	 *
-	 * Mirrors the API client's filter so links and API calls agree when a
-	 * developer points the plugin at sandbox/staging.
+	 * Delegates to the API client so links and API calls can never disagree:
+	 * Api_Client::base() validates the publicanow_api_base filter and falls
+	 * back to the constant, and applying the filter a second time here would
+	 * skip that validation.
 	 *
 	 * @return string Without trailing slash.
 	 */
 	public static function base(): string {
-		$base = defined( 'PUBLICANOW_API_BASE' ) ? PUBLICANOW_API_BASE : 'https://publica.now';
+		if ( class_exists( __NAMESPACE__ . '\Api_Client' ) ) {
+			return Api_Client::instance()->base();
+		}
 
-		/** This filter is documented in includes/class-api-client.php. */
-		$base = (string) apply_filters( 'publicanow_api_base', $base );
-
-		return untrailingslashit( $base );
+		return untrailingslashit( defined( 'PUBLICANOW_API_BASE' ) ? PUBLICANOW_API_BASE : 'https://publica.now' );
 	}
 
 	/**

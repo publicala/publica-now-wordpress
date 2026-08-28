@@ -37,9 +37,11 @@ final class Formatting {
 	);
 
 	/**
-	 * Currencies whose minor unit is the unit itself (price_cents is whole yen).
+	 * Currencies whose minor unit is the unit itself (price_cents is whole yen),
+	 * per ISO 4217. HUF is deliberately absent: it has two minor units even
+	 * though several payment APIs treat it as zero-decimal.
 	 */
-	const ZERO_DECIMAL = array( 'JPY' );
+	const ZERO_DECIMAL = array( 'JPY', 'KRW', 'CLP', 'ISK', 'VND', 'PYG', 'XOF', 'XAF', 'XPF', 'BIF', 'DJF', 'GNF', 'KMF', 'RWF', 'UGX', 'VUV' );
 
 	/**
 	 * Number of hue buckets available in the CSS for typographic fallback covers.
@@ -121,35 +123,6 @@ final class Formatting {
 		$kind = strtolower( trim( $kind ) );
 
 		return isset( $labels[ $kind ] ) ? $labels[ $kind ] : $labels['other'];
-	}
-
-	/**
-	 * Map the stored publica.now content_type to the normalised kind.
-	 *
-	 * The API stores "literary" for ebooks (see docs/PLAN.md §3); everything
-	 * else is already the kind name. Unknown values become "other" so a new
-	 * content type upstream degrades to a generic card instead of breaking.
-	 *
-	 * @param string $content_type Stored value from the API.
-	 * @return string
-	 */
-	public static function kind_from_content_type( string $content_type ): string {
-		$map = array(
-			'literary'    => 'ebook',
-			'ebook'       => 'ebook',
-			'audiobook'   => 'audiobook',
-			'music'       => 'music',
-			'video'       => 'video',
-			'course'      => 'course',
-			'zine'        => 'zine',
-			'photography' => 'photography',
-			'design'      => 'design',
-			'print'       => 'print',
-		);
-
-		$content_type = strtolower( trim( $content_type ) );
-
-		return isset( $map[ $content_type ] ) ? $map[ $content_type ] : 'other';
 	}
 
 	/**

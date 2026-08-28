@@ -88,12 +88,12 @@ $sale_ends = $on_sale && $discount && ! empty( $discount['ends_at'] ) ? Formatti
 		<?php if ( '' !== $cover ) : ?>
 			<img class="publicanow-cover" src="<?php echo esc_url( $cover ); ?>" alt="<?php echo esc_attr( $work_title ); ?>" width="120" height="180" loading="lazy" decoding="async" />
 		<?php else : ?>
-			<span class="publicanow-cover publicanow-cover--fallback <?php echo esc_attr( $hue_class ); ?>" role="img" aria-label="<?php echo esc_attr( $work_title ); ?>"><span class="publicanow-cover__title"><?php echo esc_html( $work_title ); ?></span></span>
+			<span class="publicanow-cover publicanow-cover--fallback <?php echo esc_attr( $hue_class ); ?>" role="img" aria-label="<?php echo esc_attr( $work_title ); ?>"><span class="publicanow-cover__title" dir="auto"><?php echo esc_html( $work_title ); ?></span></span>
 		<?php endif; ?>
 	</<?php echo tag_escape( $cover_tag ); ?>>
 
 	<div class="publicanow-inline__body">
-		<<?php echo tag_escape( $heading ); ?> class="publicanow-inline__title">
+		<<?php echo tag_escape( $heading ); ?> class="publicanow-inline__title" dir="auto">
 			<?php if ( '' !== $read_url ) : ?>
 				<a href="<?php echo esc_url( $read_url ); ?>" rel="noopener"<?php echo '' !== $target ? ' target="' . esc_attr( $target ) . '"' : ''; ?>><?php echo esc_html( $work_title ); ?></a>
 			<?php else : ?>
@@ -106,28 +106,40 @@ $sale_ends = $on_sale && $discount && ! empty( $discount['ends_at'] ) ? Formatti
 				<span class="publicanow-badge publicanow-badge--<?php echo esc_attr( $kind ); ?>"><?php echo esc_html( Formatting::kind_label( $kind ) ); ?></span>
 			<?php endif; ?>
 			<?php if ( $show_author && '' !== $author ) : ?>
-				<span class="publicanow-inline__author">
+				<span class="publicanow-inline__author" dir="auto">
 					<?php
-					/* translators: %s: author name. */
-					echo esc_html( sprintf( _x( 'by %s', 'author byline', 'publica-now' ), $author ) );
+					echo wp_kses(
+						sprintf(
+							/* translators: %s: author name. */
+							_x( 'by %s', 'author byline', 'publica-now' ),
+							'<bdi>' . esc_html( $author ) . '</bdi>'
+						),
+						array( 'bdi' => array() )
+					);
 					?>
 				</span>
 			<?php endif; ?>
 			<?php if ( $show_rating && Formatting::has_rating( $rating ) ) : ?>
-				<span class="publicanow-inline__rating" role="img" aria-label="<?php echo esc_attr( Formatting::rating_aria( $rating ) ); ?>"><?php echo esc_html( Formatting::rating_text( $rating ) ); ?></span>
+				<span class="publicanow-inline__rating" role="img" aria-label="<?php echo esc_attr( Formatting::rating_aria( $rating ) ); ?>"><bdi><?php echo esc_html( Formatting::rating_text( $rating ) ); ?></bdi></span>
 			<?php endif; ?>
 			<?php if ( $is_free ) : ?>
 				<span class="publicanow-price publicanow-price--free"><span class="publicanow-price__free"><?php esc_html_e( 'Free', 'publica-now' ); ?></span></span>
 			<?php elseif ( null !== $price_cents ) : ?>
 				<span class="publicanow-price<?php echo $on_sale ? ' publicanow-price--sale' : ''; ?>">
-					<span class="publicanow-price__current"><?php echo esc_html( Formatting::price( $price_cents, $currency ) ); ?></span>
+					<span class="publicanow-price__current"><bdi><?php echo esc_html( Formatting::price( $price_cents, $currency ) ); ?></bdi></span>
 					<?php if ( $on_sale ) : ?>
-						<s class="publicanow-price__list"><span class="publicanow-sr-only"><?php esc_html_e( 'Was', 'publica-now' ); ?> </span><?php echo esc_html( Formatting::price( $list_cents, $currency ) ); ?></s>
+						<s class="publicanow-price__list"><span class="publicanow-sr-only"><?php esc_html_e( 'Was', 'publica-now' ); ?> </span><bdi><?php echo esc_html( Formatting::price( $list_cents, $currency ) ); ?></bdi></s>
 						<?php if ( '' !== $sale_ends ) : ?>
 							<span class="publicanow-price__ends">
 								<?php
-								/* translators: %s: localised date the sale ends. */
-								echo esc_html( sprintf( __( 'ends %s', 'publica-now' ), $sale_ends ) );
+								echo wp_kses(
+									sprintf(
+										/* translators: %s: localised date the sale ends. */
+										__( 'ends %s', 'publica-now' ),
+										'<bdi>' . esc_html( $sale_ends ) . '</bdi>'
+									),
+									array( 'bdi' => array() )
+								);
 								?>
 							</span>
 						<?php endif; ?>
@@ -137,7 +149,7 @@ $sale_ends = $on_sale && $discount && ! empty( $discount['ends_at'] ) ? Formatti
 		</p>
 
 		<?php if ( '' !== $excerpt ) : ?>
-			<p class="publicanow-inline__excerpt"><?php echo esc_html( $excerpt ); ?></p>
+			<p class="publicanow-inline__excerpt" dir="auto"><?php echo esc_html( $excerpt ); ?></p>
 		<?php endif; ?>
 	</div>
 

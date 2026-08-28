@@ -6,7 +6,7 @@
 	"category": "widgets",
 	"icon": "book",
 	"description": "Show one of your Publica.now works as a card or a compact row, with its cover, price and a button that sends readers to publica.now.",
-	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "pdf", "book", "shop", "store" ],
 	"textdomain": "publica-now",
 	"attributes": {
 		"id": {
@@ -18,8 +18,7 @@
 			"default": "card"
 		},
 		"show_excerpt": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"button_text": {
 			"type": "string",

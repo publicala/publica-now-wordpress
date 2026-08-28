@@ -22,9 +22,12 @@ final class Plugin {
 	const DOCS_URL = 'https://publica.now/wordpress';
 
 	/**
-	 * Support URL shown in the plugin row.
+	 * Support URL shown in the plugin row: the WordPress.org support forum for
+	 * this plugin, which is where a hosted plugin's users are expected to go
+	 * (publica.now has no general support page — /support/{creator} is the
+	 * tips and subscriptions page for one creator, a different thing).
 	 */
-	const SUPPORT_URL = 'https://publica.now/support';
+	const SUPPORT_URL = 'https://wordpress.org/support/plugin/publica-now/';
 
 	/**
 	 * Singleton instance.

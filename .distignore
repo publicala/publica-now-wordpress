@@ -41,6 +41,10 @@
 # WordPress.org listing assets live in SVN /assets, never inside the plugin
 /.wordpress-org
 
+# The listing icon's source. bin/make-assets.sh copies it to .wordpress-org/icon.svg
+# (excluded above); nothing in the plugin references it, so it must not ship either.
+/assets/images
+
 # GitHub-facing documents; readme.txt is the only readme WordPress.org reads
 /*.md
 

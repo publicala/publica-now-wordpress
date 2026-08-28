@@ -138,7 +138,7 @@ Everything lives in the options and user-meta tables; the plugin writes no files
 
 | Where | Key | Autoload | Content | Lifetime |
 | --- | --- | --- | --- | --- |
-| option | `publicanow_settings` | yes | `creator_slug`, `open_in_new_tab` (false), `show_powered_by` (**false**), `cache_ttl` (900), `default_columns` (3), `default_layout` (`grid`), `show_excerpt` (true), `show_rating` (true), `button_text` ('') | until uninstall |
+| option | `publicanow_settings` | yes | `creator_slug`, `open_in_new_tab` (false), `cache_ttl` (900), `default_columns` (3), `default_layout` (`grid`), `show_excerpt` (true), `show_rating` (true), `button_text` ('') | until uninstall |
 | option | `publicanow_oauth` | **no** | `client_id`, `client_secret`, `registered_at`, `scope` | until Disconnect / uninstall (revoked first) |
 | option | `publicanow_creator` | yes | last validated creator payload + `fetched_at` + `website_matches` | until Disconnect / uninstall |
 | option | `publicanow_activated_at` | yes | Unix time of first activation; drives the one-time connect notice | until uninstall |

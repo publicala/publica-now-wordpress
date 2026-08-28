@@ -96,7 +96,6 @@ final class Settings {
 		return array(
 			'creator_slug'    => '',
 			'open_in_new_tab' => false,
-			'show_powered_by' => false,
 			'cache_ttl'       => Cache::DEFAULT_TTL,
 			'default_columns' => 3,
 			'default_layout'  => 'grid',
@@ -173,7 +172,7 @@ final class Settings {
 		$slug                = isset( $input['creator_slug'] ) ? Catalog::normalise_slug( (string) $input['creator_slug'] ) : '';
 		$out['creator_slug'] = $slug;
 
-		foreach ( array( 'open_in_new_tab', 'show_powered_by', 'show_excerpt', 'show_rating' ) as $flag ) {
+		foreach ( array( 'open_in_new_tab', 'show_excerpt', 'show_rating' ) as $flag ) {
 			$out[ $flag ] = array_key_exists( $flag, $input ) ? rest_sanitize_boolean( $input[ $flag ] ) : $defaults[ $flag ];
 		}
 
@@ -213,6 +212,17 @@ final class Settings {
 				__( 'Paste your publica.now profile URL (https://publica.now/creators/your-name) or just your creator slug.', 'publica-now' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		/*
+		 * The ONLY place (with refresh()) that may create OAuth credentials at
+		 * publica.now: an administrator has just clicked Connect, with a nonce
+		 * checked. Read paths never register — see Api_Client::authorize().
+		 */
+		$authorized = Api_Client::instance()->authorize();
+
+		if ( is_wp_error( $authorized ) ) {
+			return $authorized;
 		}
 
 		$creator = Catalog::instance()->creator( $slug, true );
@@ -268,13 +278,21 @@ final class Settings {
 	}
 
 	/**
-	 * Disconnect: forget the creator, purge caches. The OAuth client stays
-	 * (it is not tied to the creator and re-registering is throttled).
+	 * Disconnect: revoke the access token at publica.now, drop the OAuth
+	 * client, forget the creator and purge every cached response.
+	 *
+	 * This is what readme.txt promises under "External Services", and after
+	 * this call the site holds nothing from publica.now. Reconnecting registers
+	 * a fresh client (throttled at 10 per hour per IP, which is ample for a
+	 * human clicking Connect).
 	 *
 	 * @return string The slug that was connected ('' if none).
 	 */
 	public function disconnect(): string {
 		$previous = Catalog::instance()->connected_slug();
+
+		Api_Client::instance()->revoke();
+		Api_Client::instance()->forget_client();
 
 		self::update( array( 'creator_slug' => '' ) );
 		delete_option( self::CREATOR_OPTION );
@@ -291,13 +309,17 @@ final class Settings {
 	}
 
 	/**
-	 * Refresh: purge every cached response and re-take the creator snapshot.
+	 * Refresh: re-read the profile from publica.now and, only if that works,
+	 * purge every cached response so the next page view fetches fresh data.
 	 *
-	 * @return array|WP_Error The refreshed creator, or the error (cache is purged either way).
+	 * The order matters. Cache::purge() deletes the 7-day outage copy, so
+	 * purging first would mean that clicking "Refresh catalog" during an outage
+	 * — exactly when an admin reaches for it — takes the catalog off the site
+	 * until publica.now comes back. Nothing is purged unless the API answered.
+	 *
+	 * @return array|WP_Error The refreshed creator, or the error (caches untouched).
 	 */
 	public function refresh() {
-		Cache::purge();
-
 		$slug = Catalog::instance()->connected_slug();
 
 		if ( '' === $slug ) {
@@ -308,11 +330,29 @@ final class Settings {
 			);
 		}
 
-		$creator = Catalog::instance()->creator( $slug, true );
+		// Admin action behind manage_options + a nonce: may (re-)register.
+		$authorized = Api_Client::instance()->authorize();
 
-		if ( is_wp_error( $creator ) ) {
-			return $creator;
+		if ( is_wp_error( $authorized ) ) {
+			return $authorized;
 		}
+
+		/*
+		 * Deliberately not Catalog::creator(): that method falls back to the
+		 * stale copy on failure, which would report success while the API is
+		 * down and let the purge below run.
+		 */
+		$response = Api_Client::instance()->get( '/api/v1/public/creators/' . rawurlencode( $slug ) );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$raw     = isset( $response['data'] ) && is_array( $response['data'] ) ? $response['data'] : $response;
+		$creator = Catalog::instance()->finish_creator( Catalog::instance()->normalise_creator( $raw ) );
+
+		Cache::purge();
+		Cache::set( 'creator:' . $slug, $creator );
 
 		update_option(
 			self::CREATOR_OPTION,
@@ -440,7 +480,7 @@ final class Settings {
 		}
 
 		// Browsers omit unchecked checkboxes from the POST body: absent means off.
-		foreach ( array( 'open_in_new_tab', 'show_powered_by', 'show_excerpt', 'show_rating' ) as $flag ) {
+		foreach ( array( 'open_in_new_tab', 'show_excerpt', 'show_rating' ) as $flag ) {
 			if ( ! array_key_exists( $flag, $input ) ) {
 				$input[ $flag ] = false;
 			}
@@ -485,7 +525,6 @@ final class Settings {
 			'button_text'     => __( 'Button text', 'publica-now' ),
 			'open_in_new_tab' => __( 'Links', 'publica-now' ),
 			'cache_ttl'       => __( 'Cache', 'publica-now' ),
-			'show_powered_by' => __( 'Credit', 'publica-now' ),
 		);
 
 		foreach ( $fields as $key => $label ) {
@@ -584,10 +623,6 @@ final class Settings {
 
 			case 'open_in_new_tab':
 				$this->checkbox( $id, $name, (bool) $value, __( 'Open publica.now in a new tab', 'publica-now' ) );
-				break;
-
-			case 'show_powered_by':
-				$this->checkbox( $id, $name, (bool) $value, __( 'Show a small “Powered by Publica.now” line under catalogs', 'publica-now' ) );
 				break;
 		}
 	}
@@ -753,7 +788,7 @@ final class Settings {
 	public function handle_disconnect() {
 		$this->authorize( 'publicanow_disconnect' );
 		$this->disconnect();
-		$this->finish( 'success', __( 'Disconnected. Your settings were kept.', 'publica-now' ) );
+		$this->finish( 'success', __( 'Disconnected. The API credentials were revoked and deleted; your display settings were kept.', 'publica-now' ) );
 	}
 
 	/**
@@ -771,7 +806,7 @@ final class Settings {
 				'warning',
 				sprintf(
 					/* translators: %s: error message. */
-					__( 'Cache cleared, but publica.now could not be reached: %s', 'publica-now' ),
+					__( 'Nothing was cleared: publica.now could not be reached (%s). Your saved copy of the catalog is still being shown.', 'publica-now' ),
 					$result->get_error_message()
 				)
 			);
@@ -895,6 +930,7 @@ final class Settings {
 			echo '<button type="submit" class="button button-primary">' . esc_html__( 'Connect', 'publica-now' ) . '</button>';
 			echo '<p class="publicanow-status" data-publicanow-status role="status" aria-live="polite"></p>';
 			echo '</form>';
+			$this->render_service_terms();
 			echo '</section>';
 
 			return;
@@ -961,7 +997,7 @@ final class Settings {
 		wp_nonce_field( 'publicanow_disconnect' );
 		printf(
 			'<button type="submit" class="button button-link-delete" data-publicanow-action="disconnect" data-publicanow-confirm="%s">%s</button>',
-			esc_attr__( 'Disconnect this publica.now account? Your catalog blocks will stop rendering until you connect again.', 'publica-now' ),
+			esc_attr__( 'Disconnect this publica.now account? The API credentials are revoked and deleted, and your catalog blocks stop rendering until you connect again.', 'publica-now' ),
 			esc_html__( 'Disconnect', 'publica-now' )
 		);
 		echo '</form>';
@@ -983,7 +1019,30 @@ final class Settings {
 			);
 		}
 
+		$this->render_service_terms();
+
 		echo '</section>';
+	}
+
+	/**
+	 * What connecting means, plus publica.now's terms and privacy policy.
+	 *
+	 * WordPress.org expects a plugin that depends on an external service to say
+	 * so on the screen where the connection is made, not only in readme.txt.
+	 *
+	 * @return void
+	 */
+	private function render_service_terms() {
+		$base = Api_Client::instance()->base();
+
+		printf(
+			'<p class="description publicanow-service-terms">%1$s <a href="%2$s" target="_blank" rel="noopener">%3$s</a> · <a href="%4$s" target="_blank" rel="noopener">%5$s</a></p>',
+			esc_html__( 'Connecting registers a read-only API client with publica.now and stores its credentials on this site. Disconnecting revokes them.', 'publica-now' ),
+			esc_url( $base . '/terms' ),
+			esc_html__( 'publica.now terms of service', 'publica-now' ),
+			esc_url( $base . '/privacy' ),
+			esc_html__( 'publica.now privacy policy', 'publica-now' )
+		);
 	}
 
 	/**

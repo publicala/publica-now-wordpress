@@ -108,6 +108,24 @@
 		var status = useStatus();
 		var notConnected = !! ( status && status.connected === false );
 
+		/*
+		 * Four attributes (layout, columns, show_excerpt, show_rating) have no
+		 * default in block.json on purpose: undefined means "use the site
+		 * default", which the server resolves at render time. The editor shows
+		 * that same value, read from /publica-now/v1/status, so the control
+		 * never disagrees with the preview.
+		 */
+		var siteDefaults = ( status && status.defaults ) || {};
+
+		function resolved( key, fallback ) {
+			if ( attributes[ key ] !== undefined && attributes[ key ] !== null && attributes[ key ] !== '' ) {
+				return attributes[ key ];
+			}
+			return siteDefaults[ key ] !== undefined ? siteDefaults[ key ] : fallback;
+		}
+
+		var layout = resolved( 'layout', 'grid' );
+
 		function set( key ) {
 			return function ( value ) {
 				var next = {};
@@ -142,32 +160,28 @@
 					help: __( 'Publica.now creator slug or profile URL. Leave empty to use the connected account.', 'publica-now' ),
 					value: attributes.creator,
 					onChange: set( 'creator' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( SelectControl, {
 					label: __( 'Content type', 'publica-now' ),
 					value: attributes.content_type,
 					options: CONTENT_TYPES,
 					onChange: set( 'content_type' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( SelectControl, {
 					label: __( 'Price', 'publica-now' ),
 					value: attributes.free,
 					options: FREE_OPTIONS,
 					onChange: set( 'free' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( SelectControl, {
 					label: __( 'Order', 'publica-now' ),
 					value: attributes.order,
 					options: ORDER_OPTIONS,
 					onChange: set( 'order' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( RangeControl, {
 					label: __( 'Number of works', 'publica-now' ),
@@ -183,16 +197,14 @@
 					help: __( 'Work ids or slugs, comma separated.', 'publica-now' ),
 					value: attributes.ids,
 					onChange: set( 'ids' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( TextControl, {
 					label: __( 'Hide these works', 'publica-now' ),
 					help: __( 'Work ids or slugs, comma separated.', 'publica-now' ),
 					value: attributes.exclude,
 					onChange: set( 'exclude' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} )
 			),
 			el(
@@ -200,16 +212,15 @@
 				{ title: __( 'Layout', 'publica-now' ), initialOpen: true },
 				el( SelectControl, {
 					label: __( 'Layout', 'publica-now' ),
-					value: attributes.layout,
+					value: layout,
 					options: LAYOUT_OPTIONS,
 					onChange: set( 'layout' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
-				attributes.layout !== 'list'
+				layout !== 'list'
 					? el( RangeControl, {
 						label: __( 'Columns', 'publica-now' ),
-						value: attributes.columns,
+						value: resolved( 'columns', 3 ),
 						min: 1,
 						max: 6,
 						onChange: setNumber( 'columns', 3 ),
@@ -230,13 +241,13 @@
 				} ),
 				el( ToggleControl, {
 					label: __( 'Show rating', 'publica-now' ),
-					checked: !! attributes.show_rating,
+					checked: !! resolved( 'show_rating', true ),
 					onChange: set( 'show_rating' ),
 					__nextHasNoMarginBottom: true
 				} ),
 				el( ToggleControl, {
 					label: __( 'Show excerpt', 'publica-now' ),
-					checked: !! attributes.show_excerpt,
+					checked: !! resolved( 'show_excerpt', true ),
 					onChange: set( 'show_excerpt' ),
 					__nextHasNoMarginBottom: true
 				} )
@@ -249,15 +260,13 @@
 					help: __( 'Replaces the primary button label. Leave empty for Buy / Read free / Order paperback.', 'publica-now' ),
 					value: attributes.button_text,
 					onChange: set( 'button_text' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( TextControl, {
 					label: __( 'Extra CSS class', 'publica-now' ),
 					value: attributes[ 'class' ],
 					onChange: set( 'class' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} )
 			)
 		);

@@ -180,8 +180,7 @@
 					setTerm( value || '' );
 				},
 				allowReset: true,
-				__nextHasNoMarginBottom: true,
-				__next40pxDefaultSize: true
+				__nextHasNoMarginBottom: true
 			} ),
 			search.loading && Spinner ? el( Spinner ) : null
 		);
@@ -228,23 +227,20 @@
 					value: attributes.format,
 					options: FORMAT_OPTIONS,
 					onChange: set( 'format' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( TextControl, {
 					label: __( 'Button text', 'publica-now' ),
 					help: __( 'Leave empty for Buy / Read free / Order paperback.', 'publica-now' ),
 					value: attributes.text,
 					onChange: set( 'text' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( TextControl, {
 					label: __( 'Extra CSS class', 'publica-now' ),
 					value: attributes[ 'class' ],
 					onChange: set( 'class' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} )
 			)
 		);

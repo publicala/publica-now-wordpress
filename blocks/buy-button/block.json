@@ -6,7 +6,7 @@
 	"category": "widgets",
 	"icon": "cart",
 	"description": "A single Buy / Read free / Order paperback button for one of your Publica.now works. Checkout happens on publica.now.",
-	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "pdf", "book", "shop", "store" ],
 	"textdomain": "publica-now",
 	"attributes": {
 		"work": {

@@ -180,8 +180,7 @@
 					setTerm( value || '' );
 				},
 				allowReset: true,
-				__nextHasNoMarginBottom: true,
-				__next40pxDefaultSize: true
+				__nextHasNoMarginBottom: true
 			} ),
 			search.loading && Spinner ? el( Spinner ) : null
 		);
@@ -193,6 +192,16 @@
 		var blockProps = useBlockProps();
 		var status = useStatus();
 		var notConnected = !! ( status && status.connected === false );
+
+		/*
+		 * show_excerpt has no default in block.json: undefined means "use the
+		 * Settings → Publica.now default", which the server resolves. The
+		 * editor reads the same value so the control matches the preview.
+		 */
+		var siteDefaults = ( status && status.defaults ) || {};
+		var showExcerpt = attributes.show_excerpt !== undefined && attributes.show_excerpt !== null
+			? attributes.show_excerpt
+			: ( siteDefaults.show_excerpt !== undefined ? siteDefaults.show_excerpt : true );
 
 		function set( key ) {
 			return function ( value ) {
@@ -228,12 +237,11 @@
 					value: attributes.layout,
 					options: LAYOUT_OPTIONS,
 					onChange: set( 'layout' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( ToggleControl, {
 					label: __( 'Show excerpt', 'publica-now' ),
-					checked: !! attributes.show_excerpt,
+					checked: !! showExcerpt,
 					onChange: set( 'show_excerpt' ),
 					__nextHasNoMarginBottom: true
 				} ),
@@ -242,15 +250,13 @@
 					help: __( 'Replaces the main button label. Leave empty for Buy / Read free / Order paperback.', 'publica-now' ),
 					value: attributes.button_text,
 					onChange: set( 'button_text' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} ),
 				el( TextControl, {
 					label: __( 'Extra CSS class', 'publica-now' ),
 					value: attributes[ 'class' ],
 					onChange: set( 'class' ),
-					__nextHasNoMarginBottom: true,
-					__next40pxDefaultSize: true
+					__nextHasNoMarginBottom: true
 				} )
 			)
 		);

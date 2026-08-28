@@ -98,7 +98,9 @@ jobs:
       # VERSION is passed explicitly (instead of the action's default, the git
       # ref) so a manual dry run from main uses the real plugin version too.
       - name: Deploy to WordPress.org SVN
-        uses: 10up/action-wordpress-plugin-deploy@stable
+        # Pinned to a commit SHA, not a moving tag: this step runs with
+        # SVN_USERNAME / SVN_PASSWORD in its environment.
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # v2.3.0
         with:
           generate-zip: true
           dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
@@ -139,7 +141,9 @@ jobs:
       # Pushes readme.txt to trunk/ (and to the tag named by "Stable tag" when
       # it exists) and syncs .wordpress-org/ to assets/. No code is touched.
       - name: Update WordPress.org readme and assets
-        uses: 10up/action-wordpress-plugin-asset-update@stable
+        # Pinned to a commit SHA, not a moving tag: this step runs with
+        # SVN_USERNAME / SVN_PASSWORD in its environment.
+        uses: 10up/action-wordpress-plugin-asset-update@2480306f6f693672726d08b5917ea114cb2825f7 # v2.2.0
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}

@@ -235,6 +235,13 @@ final class Structured_Data {
 			$node['datePublished'] = $published;
 		}
 
+		// The file format the reader gets (epub, pdf, mp3…), as an IANA media
+		// type where we know it — schema.org's encodingFormat accepts both.
+		$format = self::str( $work, 'format' );
+		if ( '' !== $format ) {
+			$node['encodingFormat'] = self::media_type( $format );
+		}
+
 		switch ( $kind ) {
 			case 'ebook':
 				$node['bookFormat'] = 'https://schema.org/EBook';
@@ -411,6 +418,32 @@ final class Structured_Data {
 		}
 
 		return $person;
+	}
+
+	/**
+	 * IANA media type for a publica.now file format, or the format itself when
+	 * we do not have a mapping (schema.org's encodingFormat accepts both a
+	 * media type and a plain format name).
+	 *
+	 * @param string $format Lower-case format from the API (epub, pdf, mp3…).
+	 * @return string
+	 */
+	private static function media_type( string $format ): string {
+		$types = array(
+			'epub' => 'application/epub+zip',
+			'pdf'  => 'application/pdf',
+			'mobi' => 'application/x-mobipocket-ebook',
+			'mp3'  => 'audio/mpeg',
+			'm4a'  => 'audio/mp4',
+			'm4b'  => 'audio/mp4',
+			'wav'  => 'audio/wav',
+			'flac' => 'audio/flac',
+			'mp4'  => 'video/mp4',
+			'webm' => 'video/webm',
+			'zip'  => 'application/zip',
+		);
+
+		return isset( $types[ $format ] ) ? $types[ $format ] : $format;
 	}
 
 	/**

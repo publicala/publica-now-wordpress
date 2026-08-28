@@ -1,5 +1,4 @@
-=== Publica.now – Sell Ebooks, Audiobooks, Video & Print Books ===
-Contributors: publicala
+=== Publica.now ===
 Tags: ebook, audiobook, sell digital products, print on demand, bookstore
 Requires at least: 6.2
 Tested up to: 7.1
@@ -12,140 +11,90 @@ Show your publica.now catalog on your WordPress site and sell ebooks, audiobooks
 
 == Description ==
 
-Publica.now connects your WordPress site to your **publica.now** creator account. It reads your public catalog through the publica.now API and renders it on your pages with blocks or shortcodes: cover, title, author, format badge, price (with sale price and end date while a sale runs), rating, and a **Buy**, **Read free** or **Order paperback** button that sends the reader to publica.now to complete the purchase.
+Publica.now is a publishing and selling service for independent creators. You upload a book, an audiobook, a course, a video or a design file, and the service hosts it, runs checkout and payment processing, delivers the file, runs the in-browser reader and player, prints and ships paperbacks on demand, handles refunds and buyer support, and pays you out. This plugin is the WordPress client for that service.
 
-The plugin is a storefront surface for a service, not a shop of its own. publica.now remains the store of record: it hosts checkout and payment processing, delivers files, runs the reader and player, manufactures and ships printed copies, handles refunds and pays creators out. Nothing about a sale ever touches your WordPress database.
+Connecting is a real account link, not an embed code. When you click **Connect** the plugin registers its own read-only API client with publica.now (OAuth 2.0 client credentials, scope `catalog:read`), stores those credentials in your database and uses them for every later request. Your pages then read live data from the API: which works are published, the effective price right now including any running sale and the date it ends, whether a work is free, its formats, languages and rating, whether a print edition can be ordered, and the right hosted checkout, reader or print-order address. Change a price, start a sale or unpublish a title and your pages follow within the cache window, with nothing to edit here.
 
-**Who it is for**
+Blocks and shortcodes render that data — cover, title, author, format badge, price with the sale price struck through, rating — with a **Buy**, **Read free** or **Order paperback** button. Those buttons hand the reader to publica.now, the store of record: your site never processes a payment, stores a file or holds buyer data. Every outbound link carries this site's host name, so publica.now attributes the sale back to your website.
 
-* **Creators already selling on publica.now.** Paste your profile URL once, then place the *Publica.now Catalog* block on any page. Every click carries your site's host name so sales are attributed to your website in your publica.now dashboard.
-* **Creators with a WordPress site and no publisher yet.** publica.now lets you sell PDF and EPUB ebooks, audiobooks, music, video, courses, zines, photography, design files and print-on-demand paperbacks with no monthly fee. Create a free account at [publica.now/access/creator](https://publica.now/access/creator), upload a work, then connect this plugin.
+Not on publica.now yet? An account is free and there is no monthly fee: publica.now takes 20% plus USD 0.30 per paid sale and pays out monthly through Stripe. See [publica.now/pricing](https://publica.now/pricing) and [publica.now/access/creator](https://publica.now/access/creator).
 
-**How money flows**
+No e-commerce runs on WordPress: no cart, checkout, downloads or buyer records, no WooCommerce, no tracking scripts, no advertising.
 
-Readers pay on publica.now, not on your site. publica.now charges 20% plus USD 0.30 per paid sale and no monthly fee; free works cost nothing to distribute. Balances are paid out to the creator monthly through Stripe. See [publica.now/pricing](https://publica.now/pricing) for current rates and the print-on-demand cost model.
+**Blocks and shortcodes**
 
-**What the plugin does not do**
+Three dynamic blocks appear in the editor under *Publica.now*, each with a live preview: **Catalog** (a grid or list), **Work** (one work as a card or inline row) and **Buy Button**. The shortcodes take the same options:
 
-* No payments, carts, checkout or downloads on WordPress; no WooCommerce or other e-commerce plugin required.
-* No buyer accounts, emails or purchase records are stored on your site.
-* No files are copied to your server; covers are served by publica.now.
-* No tracking scripts, analytics or "Powered by" links unless you opt in.
+    [publicanow_works limit="12" columns="3" layout="grid" order="newest"]
+    [publicanow_work id="your-work-slug" layout="card"]
+    [publicanow_button work="your-work-slug" format="auto"]
 
-**Blocks**
-
-Three dynamic blocks are available in the editor under *Publica.now*; each has a live preview and the same options as its shortcode:
-
-* **Publica.now Catalog** (`publica-now/catalog`) — a grid or list of your works.
-* **Publica.now Work** (`publica-now/work`) — one work as a card or an inline row.
-* **Publica.now Buy Button** (`publica-now/buy-button`) — just the button.
-
-**Shortcodes**
-
-`[publicanow_works]` (alias `[publicanow_catalog]`) — your catalog. Attributes:
-
-* `creator` — a publica.now creator slug; defaults to the connected account.
-* `content_type` — one of `literary`, `audiobook`, `music`, `video`, `course`, `zine`, `photography`, `design`, `print`.
-* `free` — `yes`, `no` or `any` (default `any`).
-* `ids` / `exclude` — comma-separated work ids or slugs to include or leave out.
-* `order` — `newest` (default), `oldest`, `title`, `price_asc`, `price_desc`.
-* `limit` — number of works (default `12`, `0` shows all).
-* `columns` — `1` to `6` (grid only).
-* `layout` — `grid` (default) or `list`.
-* `show_excerpt`, `show_rating`, `show_author`, `show_type` — `yes` or `no`.
-* `button_text` — override the primary button label.
-* `class` — extra CSS class on the wrapper.
-
-`[publicanow_work id="..."]` — one work. Attributes: `id` (id or slug, required), `layout` (`card` or `inline`), `show_excerpt`, `button_text`, `class`.
-
-`[publicanow_button work="..."]` — one button. Attributes: `work` (id or slug, required), `text`, `format` (`digital`, `print` or `auto`, default `auto`), `class`.
-
-Example: `[publicanow_works content_type="audiobook" columns="4" order="title"]`
+`[publicanow_works]` accepts `creator`, `content_type` (`literary`, `audiobook`, `music`, `video`, `course`, `zine`, `photography`, `design`, `print`), `free` (`yes|no|any`), `ids`, `exclude`, `order`, `limit` (`0` = all), `columns` (1-6), `layout` (`grid|list`), `show_excerpt`, `show_rating`, `show_author`, `show_type`, `button_text`, `class`. `[publicanow_work]` takes `id`, `layout` (`card|inline`), `show_excerpt`, `button_text`, `class`; `[publicanow_button]` takes `work`, `text`, `format`, `class`. `format` is a preference, not a filter: a work with no digital edition still shows **Order paperback**.
 
 **Theming and hooks**
 
-The markup inherits your theme's font and uses CSS custom properties (`--publicanow-accent`, `--publicanow-ink`, `--publicanow-muted`, `--publicanow-radius`) that you can override in your stylesheet. Every template in `templates/` can be replaced by copying it to `{your-theme}/publica-now/{template}.php`. Filters: `publicanow_work`, `publicanow_creator`, `publicanow_link_args`, `publicanow_button_label`, `publicanow_template_vars`, `publicanow_jsonld`, `publicanow_cache_ttl`. Actions: `publicanow_connected`, `publicanow_disconnected`, `publicanow_cache_purged`. Each rendered surface also outputs one schema.org `ItemList` / `Book` / `Audiobook` / `Product` JSON-LD block with an `Offer` pointing at publica.now; disable it with `add_filter( 'publicanow_jsonld', '__return_empty_array' )`.
+The markup inherits your theme's font and exposes CSS custom properties you can override:
 
-**Privacy**
+    --publicanow-accent
+    --publicanow-ink
+    --publicanow-muted
+    --publicanow-radius
 
-The plugin sets no cookies and loads no third-party scripts. Visitors' browsers load cover images from publica.now, and the outbound buttons carry your site's host name as a referral parameter. Details are in the *External Services* section below, and suggested text is added to *Settings → Privacy* for your privacy policy.
-
-Documentation: [publica.now/wordpress](https://publica.now/wordpress). Source code: [github.com/publicala/publica-now-wordpress](https://github.com/publicala/publica-now-wordpress).
+Any template in `templates/` can be overridden by copying it to `{your-theme}/publica-now/`. Filters: `publicanow_work`, `publicanow_creator`, `publicanow_link_args`, `publicanow_button_label`, `publicanow_template_vars`, `publicanow_jsonld`, `publicanow_cache_ttl`. Actions: `publicanow_connected`, `publicanow_disconnected`, `publicanow_cache_purged`. Each surface outputs one schema.org JSON-LD block with an `Offer` pointing at publica.now; `add_filter( 'publicanow_jsonld', '__return_empty_array' )` disables it. The plugin sets no cookies and loads no third-party scripts; see *External Services* below, and *Settings → Privacy* for suggested policy text.
 
 == Installation ==
 
-You need a publica.now creator account with at least one published work. Accounts are free: [publica.now/access/creator](https://publica.now/access/creator).
+You need a publica.now creator account with at least one published work; accounts are free.
 
-1. In WordPress go to *Plugins → Add New*, search for "Publica.now", install and activate. Or upload the zip from *Plugins → Add New → Upload Plugin*.
-2. Open *Settings → Publica.now*.
-3. Paste your publica.now profile URL (for example `https://publica.now/creators/your-name`) or just your creator slug, and click **Connect**. The plugin registers a read-only API client with publica.now and shows your name, avatar and number of works.
-4. Add the **Publica.now Catalog** block to a page, or put `[publicanow_works]` in your content. Publish.
+1. In WordPress go to *Plugins → Add New*, search for "Publica.now", install and activate.
+2. Open *Settings → Publica.now*, paste your profile URL (for example `https://publica.now/creators/your-name`) or your creator slug, and click **Connect**. The plugin registers a read-only API client and shows your name, avatar and works count.
+3. Add the **Publica.now Catalog** block to a page, or put `[publicanow_works]` in your content, and publish.
 
-Nothing is sent to publica.now until you click **Connect**. Use **Disconnect** on the same screen to revoke the API client and delete everything the plugin stored.
+Nothing is sent to publica.now until you click **Connect**. **Disconnect**, on the same screen, asks publica.now to revoke this site's access token, then deletes the API credentials and the cached catalog, keeping only your display settings.
 
 == Frequently Asked Questions ==
 
 = Does the plugin charge anything? =
 
-No. The plugin is free and GPL. publica.now charges 20% plus USD 0.30 per paid sale, no monthly fee, and pays creators out monthly. Current rates: https://publica.now/pricing
+No. The plugin is free and GPL. publica.now charges 20% plus USD 0.30 per paid sale and no monthly fee: https://publica.now/pricing
 
-= Where do readers pay? =
+= Where do readers pay, and who supports them? =
 
-On publica.now. The Buy button opens the checkout page for that work on publica.now, where the reader signs in with an email code and pays by card. Your site never sees card or account details.
+On publica.now. The Buy button opens that work's checkout page, where the reader signs in with an email code and pays by card; your site never sees card or account details. Refunds, downloads and print orders go to publica.now support under its terms of service.
 
-= Can I sell printed books? =
+= Can I sell printed books, and what about free works? =
 
-Yes. Works with a published print edition show an **Order paperback** button that links to the print order page on publica.now. Printing and shipping are handled by publica.now's print-on-demand partner; you set the price above the manufacturing cost in your publica.now dashboard.
-
-= What about free works? =
-
-Free works show a **Read free** button that opens the work on publica.now, where the reader can read or listen in the browser. A free work with a print edition shows both buttons.
-
-= Who handles refunds and support for buyers? =
-
-publica.now. Buyers contact publica.now support for refunds, download problems and print orders, under the publica.now terms of service.
+Works with a published print edition show an **Order paperback** button linking to the print order page; publica.now's print-on-demand partner handles printing and shipping, and you set the price in your dashboard. Free works show a **Read free** button that opens the work in the publica.now reader or player, and a free work with a print edition shows both.
 
 = Does it work without a publica.now account? =
 
-No. The plugin only displays a publica.now catalog. Creating an account is free: https://publica.now/access/creator
+No. It only displays a publica.now catalog. Accounts are free: https://publica.now/access/creator
 
 = Can I show another creator's catalog? =
 
-Yes. The `creator` attribute accepts any public creator slug, so a magazine could feature an author it publishes. Sales are still attributed to your site's host name, but the money goes to the creator who owns the work.
+Yes, once your own account is connected. The `creator` attribute accepts any public creator slug, so a magazine can feature an author it publishes. The sale is attributed to your site, but the money goes to the work's owner.
 
 = How often is the catalog refreshed? =
 
-Every 15 minutes by default (the **Cache duration** setting or the `publicanow_cache_ttl` filter changes it). If publica.now cannot be reached, the plugin keeps showing the last copy for up to seven days; if there is no copy at all it shows a quiet link to your publica.now profile instead of a broken block. The **Refresh catalog** button on the settings screen clears the cache immediately.
+Every 15 minutes by default (**Cache duration**, or the `publicanow_cache_ttl` filter). If publica.now cannot be reached the plugin keeps serving the last copy for up to seven days; with none at all it shows a quiet link to your profile, never a broken block. **Refresh catalog** re-reads your catalog and replaces the cache only if publica.now answers.
 
 = Does it work on multisite? =
 
-Yes. Each site connects its own publica.now account; settings, cache and API credentials are per site. Network activation activates the plugin on every site without connecting any of them.
-
-= Can I change the design or the markup? =
-
-The stylesheet uses CSS custom properties you can override, the wrapper accepts a `class` attribute, and every template can be copied to `{your-theme}/publica-now/` and edited. Button labels go through the `publicanow_button_label` filter.
-
-= Do I need WooCommerce? =
-
-No. The plugin does not depend on WooCommerce or any other plugin.
-
-= Which content types are supported? =
-
-Ebooks (PDF, EPUB), audiobooks, music, video, courses, zines, photography, design files and print-on-demand paperbacks — whatever publica.now can sell. Each card shows a badge with the type.
+Yes. Each site connects its own account; settings, cache and credentials are per site. Network activation connects nothing.
 
 == Screenshots ==
 
-1. Settings → Publica.now before connecting: paste your publica.now profile URL.
-2. Connected: your name, number of works, a link to your profile and the Refresh catalog / Disconnect actions. A "Verified website" badge appears when your publica.now website matches this site.
-3. The Publica.now Catalog block in the editor with its live preview and options.
-4. The catalog on the front end: covers, prices, format badges and Buy buttons in a three-column grid.
-5. A single work with a sale price and the Order paperback button.
+1. Settings → Publica.now before connecting: paste your profile URL.
+2. Connected: name, works count, profile link and the Refresh catalog / Disconnect actions. A "Verified website" badge appears when your publica.now website matches this site.
+3. The Catalog block in the editor, with its live preview and options.
+4. The catalog on the front end: covers, prices, badges and Buy buttons in a three-column grid.
+5. A work card during a sale: discount badge, sale price with the list price struck through, end date, rating and paperback button.
 6. The shortcode cheat sheet on the settings screen.
 
 == Changelog ==
 
 = 1.0.0 =
-* Initial release: connect a publica.now creator account, Catalog / Work / Buy Button blocks, `[publicanow_works]`, `[publicanow_work]` and `[publicanow_button]` shortcodes, attribution on every outbound link, cached catalog with stale fallback, JSON-LD structured data, overridable templates, Site Health test, privacy policy text, full uninstall.
+* Initial release: connect a publica.now creator account; Catalog / Work / Buy Button blocks and shortcodes; attribution on every outbound link; cached catalog with a seven-day outage fallback; JSON-LD structured data; overridable templates; Site Health test; suggested privacy text; full uninstall.
 
 == Upgrade Notice ==
 
@@ -154,18 +103,16 @@ First release.
 
 == External Services ==
 
-This plugin connects to **publica.now** (https://publica.now), a creator storefront service operated by Publica.la. It does not work without a publica.now account and does nothing until you connect one.
+This plugin connects to **publica.now** (https://publica.now), a publishing and selling service for independent creators operated by Publica.la. It does not work without a publica.now account and makes no request until you connect one.
 
 **What is sent, and when**
 
-* **When you click Connect** on *Settings → Publica.now*: the creator slug you entered and your site's host name (used as the name of the read-only API client the plugin registers). publica.now returns API credentials, which the plugin stores in your database and uses for every later request.
-* **When a page with a block or shortcode renders and the cache is empty or older than the cache duration**, and **when an administrator clicks Refresh catalog**: the plugin requests your public catalog (works, prices, availability, cover image addresses) from publica.now with those credentials. Only the creator slug and standard HTTP metadata (your server's IP address, user agent) are sent. No visitor data is sent.
-* **When a visitor views a page**: their browser loads cover images directly from publica.now, so publica.now receives the visitor's IP address and browser details as with any image. When they click Buy, Read free or Order paperback they leave your site for publica.now; the link carries your site's host name as `utm_source` so the sale is attributed to your website.
-* **When you click Disconnect** or delete the plugin: the plugin asks publica.now to revoke the API client and removes everything it stored.
+* **When you click Connect** on *Settings → Publica.now*: the creator slug you entered and your site's host name, naming the read-only API client the plugin registers. publica.now returns credentials, stored in your database and used for every later request. This is the only moment credentials are created, and it always takes an administrator.
+* **When a page with a block or shortcode renders and the cache is empty or stale**, and **when an administrator clicks Refresh catalog**: the plugin requests your public catalog (works, prices, availability, cover addresses) with those credentials. Only the creator slug and standard HTTP metadata (your server's IP address, user agent) are sent; no visitor data.
+* **When a visitor views a page**: their browser loads cover images from publica.now, which therefore receives their IP address and browser details as with any image. Clicking Buy, Read free or Order paperback takes them to publica.now; the link carries your site's host name as `utm_source`.
+* **When you click Disconnect**: the plugin asks publica.now to revoke this site's access token, then deletes the stored API credentials, the cached catalog and your stored profile. Deleting the plugin does the same.
 
-**What is received:** public catalog data (titles, authors, descriptions, prices, sale dates, formats, ratings, cover images) and your public profile (name, avatar, website, number of works). Everything the plugin reads is already visible to anyone on publica.now.
-
-The plugin sets no cookies, loads no scripts or styles from publica.now, and does not send analytics anywhere.
+**What is received:** public catalog data (titles, authors, descriptions, prices, sale dates, formats, ratings, cover images) and your public profile (name, avatar, website, works count) — all already visible to anyone on publica.now. The plugin sets no cookies, loads no scripts or styles from publica.now, and sends analytics nowhere.
 
 * Terms of service: https://publica.now/terms
 * Privacy policy: https://publica.now/privacy

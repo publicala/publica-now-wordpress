@@ -20,6 +20,9 @@ final class Cache {
 
 	/**
 	 * Object-cache group. Flushed on purge when the drop-in supports groups.
+	 *
+	 * The plugin itself only ever writes transients; the flush is defensive,
+	 * for drop-ins that mirror transients into a named group.
 	 */
 	const GROUP = 'publicanow';
 
@@ -32,6 +35,18 @@ final class Cache {
 	 * Prefix of the stale copy: publicanow_s_{md5}.
 	 */
 	const STALE_PREFIX = 'publicanow_s_';
+
+	/**
+	 * Prefix of the short-lived failure marker: publicanow_f_{md5}.
+	 */
+	const FAIL_PREFIX = 'publicanow_f_';
+
+	/**
+	 * How long a failed read is remembered, in seconds. Long enough that an
+	 * outage cannot make every page view pay its own blocking request, short
+	 * enough that recovery is invisible.
+	 */
+	const FAIL_TTL = 60;
 
 	/**
 	 * Option holding the cache generation. Bumped on purge so that entries
@@ -79,7 +94,11 @@ final class Cache {
 	}
 
 	/**
-	 * Transient name of the fresh copy for a logical cache name.
+	 * The hashed part of every key: generation, environment and logical name.
+	 *
+	 * The environment (API base + sandbox flag) is part of the hash so that
+	 * turning on PUBLICANOW_SANDBOX, or filtering publicanow_api_base to
+	 * staging, cannot serve production data — and vice versa.
 	 *
 	 * The md5 keeps the transient name under the 172-character limit and
 	 * makes it safe regardless of what the logical name contains.
@@ -87,8 +106,18 @@ final class Cache {
 	 * @param string $name Logical cache name, e.g. "works:my-slug".
 	 * @return string
 	 */
+	private static function hash( string $name ): string {
+		return md5( self::generation() . '|' . Api_Client::instance()->environment() . '|' . $name );
+	}
+
+	/**
+	 * Transient name of the fresh copy for a logical cache name.
+	 *
+	 * @param string $name Logical cache name, e.g. "works:my-slug".
+	 * @return string
+	 */
 	public static function fresh_key( string $name ): string {
-		return self::FRESH_PREFIX . md5( self::generation() . '|' . $name );
+		return self::FRESH_PREFIX . self::hash( $name );
 	}
 
 	/**
@@ -98,7 +127,17 @@ final class Cache {
 	 * @return string
 	 */
 	public static function stale_key( string $name ): string {
-		return self::STALE_PREFIX . md5( self::generation() . '|' . $name );
+		return self::STALE_PREFIX . self::hash( $name );
+	}
+
+	/**
+	 * Transient name of the failure marker for a logical cache name.
+	 *
+	 * @param string $name Logical cache name.
+	 * @return string
+	 */
+	public static function fail_key( string $name ): string {
+		return self::FAIL_PREFIX . self::hash( $name );
 	}
 
 	/**
@@ -154,14 +193,54 @@ final class Cache {
 	}
 
 	/**
-	 * Delete both copies of one logical entry.
+	 * Remember that a read failed, so the next page view does not repeat a
+	 * blocking request that is going to fail again. The error itself is stored
+	 * and replayed, so the caller keeps its contract.
+	 *
+	 * @param string    $name  Logical cache name.
+	 * @param \WP_Error $error The failure to replay.
+	 * @return void
+	 */
+	public static function set_failure( string $name, $error ) {
+		if ( ! is_wp_error( $error ) ) {
+			return;
+		}
+
+		set_transient(
+			self::fail_key( $name ),
+			array(
+				'code'    => $error->get_error_code(),
+				'message' => $error->get_error_message(),
+				'data'    => $error->get_error_data(),
+			),
+			self::FAIL_TTL
+		);
+	}
+
+	/**
+	 * The remembered failure for a logical name, or null when there is none.
+	 *
+	 * @param string $name Logical cache name.
+	 * @return \WP_Error|null
+	 */
+	public static function get_failure( string $name ) {
+		$raw = get_transient( self::fail_key( $name ) );
+
+		if ( ! is_array( $raw ) || empty( $raw['code'] ) ) {
+			return null;
+		}
+
+		return new \WP_Error( (string) $raw['code'], (string) $raw['message'], isset( $raw['data'] ) ? $raw['data'] : array() );
+	}
+
+	/**
+	 * Forget a remembered failure (a success, or an explicit admin refresh).
 	 *
 	 * @param string $name Logical cache name.
 	 * @return void
 	 */
-	public static function delete( string $name ) {
-		delete_transient( self::fresh_key( $name ) );
-		delete_transient( self::stale_key( $name ) );
+	public static function clear_failure( string $name ) {
+		delete_transient( self::fail_key( $name ) );
 	}
 
 	/**
@@ -175,8 +254,13 @@ final class Cache {
 	}
 
 	/**
-	 * Purge every cached API response (fresh and stale). The access token is
-	 * left alone: it is not catalog data and re-minting it costs a request.
+	 * Purge every cached API response (fresh, stale and failure markers). The
+	 * access token is left alone: it is not catalog data and re-minting it
+	 * costs a request.
+	 *
+	 * This destroys the 7-day outage copy, so it must only run when the caller
+	 * knows fresh data can be fetched — Settings::refresh() re-reads the API
+	 * first and purges only after that succeeds.
 	 *
 	 * @return void
 	 */
@@ -188,6 +272,8 @@ final class Cache {
 			'_transient_timeout_' . self::FRESH_PREFIX,
 			'_transient_' . self::STALE_PREFIX,
 			'_transient_timeout_' . self::STALE_PREFIX,
+			'_transient_' . self::FAIL_PREFIX,
+			'_transient_timeout_' . self::FAIL_PREFIX,
 		);
 
 		foreach ( $patterns as $pattern ) {

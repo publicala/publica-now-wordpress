@@ -20,27 +20,35 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * @return void
  */
 function publicanow_uninstall_revoke_token() {
-	$token  = get_transient( 'publicanow_token' );
+	$base = defined( 'PUBLICANOW_API_BASE' ) ? PUBLICANOW_API_BASE : 'https://publica.now';
+	$base = (string) apply_filters( 'publicanow_api_base', $base );
+	$base = preg_match( '#^https?://[^/\s]+$#i', untrailingslashit( trim( $base ) ) )
+		? untrailingslashit( trim( $base ) )
+		: 'https://publica.now';
+
+	$sandbox = defined( 'PUBLICANOW_SANDBOX' ) && PUBLICANOW_SANDBOX;
+	$sandbox = (bool) apply_filters( 'publicanow_sandbox', $sandbox );
+
+	// Must match Api_Client::token_transient().
+	$token  = get_transient( 'publicanow_token_' . substr( md5( $base . '|' . ( $sandbox ? '1' : '0' ) ), 0, 12 ) );
 	$client = get_option( 'publicanow_oauth' );
 
 	if ( ! is_string( $token ) || '' === $token || ! is_array( $client ) || empty( $client['client_id'] ) || empty( $client['client_secret'] ) ) {
 		return;
 	}
 
-	$base = defined( 'PUBLICANOW_API_BASE' ) ? PUBLICANOW_API_BASE : 'https://publica.now';
-	$base = untrailingslashit( (string) apply_filters( 'publicanow_api_base', $base ) );
-
 	wp_remote_post(
 		$base . '/oauth/revoke',
 		array(
-			'timeout'    => 5,
-			'user-agent' => 'PublicaNowWP/uninstall (+' . home_url() . ')',
-			'headers'    => array(
+			'timeout'     => 5,
+			'redirection' => 0,
+			'user-agent'  => 'PublicaNowWP/uninstall (+' . home_url() . ')',
+			'headers'     => array(
 				'Accept'        => 'application/json',
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- HTTP Basic auth requires base64.
 				'Authorization' => 'Basic ' . base64_encode( $client['client_id'] . ':' . $client['client_secret'] ),
 			),
-			'body'       => array(
+			'body'        => array(
 				'token'           => $token,
 				'token_type_hint' => 'access_token',
 				'client_id'       => $client['client_id'],
@@ -64,9 +72,15 @@ function publicanow_uninstall_site() {
 		delete_option( $option );
 	}
 
+	/*
+	 * Access tokens (publicanow_token_*), catalog caches (publicanow_c_*,
+	 * publicanow_s_*) and failure markers (publicanow_f_*), values and
+	 * timeouts. The LIKE sweep below covers all of them by prefix; this call
+	 * also clears the pre-1.0 unsuffixed name should one ever exist.
+	 */
 	delete_transient( 'publicanow_token' );
 
-	// Catalog caches: publicanow_c_* and publicanow_s_*, values and timeouts.
+	// Catalog caches: publicanow_c_*, publicanow_s_*, publicanow_f_* and tokens.
 	foreach ( array( '_transient_publicanow_', '_transient_timeout_publicanow_' ) as $pattern ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk transient cleanup has no API equivalent.
 		$wpdb->query(

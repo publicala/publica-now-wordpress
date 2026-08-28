@@ -24,9 +24,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Renderer {
 
-	const STYLE_HANDLE = 'publica-now';
-	const MIN_COLUMNS  = 1;
-	const MAX_COLUMNS  = 6;
+	const STYLE_HANDLE  = 'publica-now';
+	const MIN_COLUMNS   = 1;
+	const MAX_COLUMNS   = 6;
+	const DEFAULT_LIMIT = 12;
 
 	/**
 	 * Stored publica.now content types plus the "ebook" alias people will type.
@@ -166,7 +167,6 @@ final class Renderer {
 		$defaults = array(
 			'creator_slug'    => '',
 			'open_in_new_tab' => false,
-			'show_powered_by' => false,
 			'cache_ttl'       => 900,
 			'default_columns' => 3,
 			'default_layout'  => 'grid',
@@ -351,18 +351,36 @@ final class Renderer {
 
 		$inner = $this->template( 'grid' === $a['layout'] ? 'works-grid' : 'works-list', $vars );
 
-		// Admins get the stale-cache reason inline; visitors see the catalog as usual.
-		if ( 'stale' === $source && ! empty( $result['error'] ) && is_wp_error( $result['error'] ) && current_user_can( 'manage_options' ) ) {
-			$inner .= sprintf(
-				'<small class="publicanow-notice publicanow-notice--stale">%s</small>',
-				esc_html(
-					sprintf(
-						/* translators: %s: error message from the API client. */
-						__( 'Showing a saved copy of the catalog because Publica.now could not be reached: %s', 'publica-now' ),
-						$result['error']->get_error_message()
-					)
-				)
-			);
+		// Admins get the reason inline; visitors see the catalog as usual.
+		if ( self::admin_context() ) {
+			$notices = array();
+
+			if ( 'stale' === $source && ! empty( $result['error'] ) && is_wp_error( $result['error'] ) ) {
+				$notices[] = sprintf(
+					/* translators: %s: error message from the API client. */
+					__( 'Showing a saved copy of the catalog because Publica.now could not be reached: %s', 'publica-now' ),
+					$result['error']->get_error_message()
+				);
+			}
+
+			if ( ! empty( $result['truncated'] ) ) {
+				$notices[] = sprintf(
+					/* translators: %s: number of works the plugin reads at most. */
+					__( 'This creator has at least %s works and the plugin reads no more than that, so the catalog may be incomplete.', 'publica-now' ),
+					number_format_i18n( Catalog::MAX_PAGES * Catalog::PAGE_SIZE )
+				);
+			}
+
+			if ( ! empty( $notices ) ) {
+				self::mark_uncacheable();
+			}
+
+			foreach ( $notices as $notice ) {
+				$inner .= sprintf(
+					'<small class="publicanow-notice publicanow-notice--stale">%s</small>',
+					esc_html( $notice )
+				);
+			}
 		}
 
 		$style = 'grid' === $a['layout'] ? '--publicanow-columns:' . (int) $a['columns'] : '';
@@ -393,6 +411,10 @@ final class Renderer {
 			return $this->render_empty(
 				'work',
 				array(
+					// PLAN §4: never a blank block. Visitors get the same quiet
+					// sentence a failed lookup gives them; admins get the reason.
+					'creator_slug'  => $this->connected_slug(),
+					'message'       => __( 'This work is temporarily unavailable.', 'publica-now' ),
 					'admin_message' => __( 'Choose a work: set the id attribute to a Publica.now work id or slug.', 'publica-now' ),
 					'class'         => $a['class'],
 					'wrapper'       => $a['wrapper_attributes'],
@@ -454,6 +476,8 @@ final class Renderer {
 			return $this->render_empty(
 				'buy-button',
 				array(
+					'creator_slug'  => $this->connected_slug(),
+					'message'       => __( 'This work is temporarily unavailable.', 'publica-now' ),
 					'admin_message' => __( 'Choose a work: set the work attribute to a Publica.now work id or slug.', 'publica-now' ),
 					'class'         => $a['class'],
 					'wrapper'       => $a['wrapper_attributes'],
@@ -484,6 +508,7 @@ final class Renderer {
 				'buy-button',
 				array(
 					'creator_slug'  => $this->creator_slug_of( $work ),
+					'message'       => __( 'This work is temporarily unavailable.', 'publica-now' ),
 					'admin_message' => __( 'This work has no link to offer yet (it may be unpublished on Publica.now).', 'publica-now' ),
 					'class'         => $a['class'],
 					'wrapper'       => $a['wrapper_attributes'],
@@ -609,7 +634,7 @@ final class Renderer {
 			'ids'                => self::id_list( $atts['ids'] ),
 			'exclude'            => self::id_list( $atts['exclude'] ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- "exclude" is a block attribute, not a WP_Query parameter.
 			'order'              => self::enum( $atts['order'], self::ORDERS, 'newest' ),
-			'limit'              => min( 100, absint( $atts['limit'] ) ),
+			'limit'              => self::limit( $atts['limit'] ),
 			'columns'            => $this->columns( $atts['columns'], (int) $settings['default_columns'] ),
 			'layout'             => self::enum( $atts['layout'], array( 'grid', 'list' ), self::enum( $settings['default_layout'], array( 'grid', 'list' ), 'grid' ) ),
 			'show_excerpt'       => self::to_bool( $atts['show_excerpt'], ! empty( $settings['show_excerpt'] ) ),
@@ -798,6 +823,25 @@ final class Renderer {
 	}
 
 	/**
+	 * How many works to render, capped at the API page size.
+	 *
+	 * A literal 0 means "every work" per the contract. Anything that is not a
+	 * non-negative number — a typo such as limit="twelve", or limit="-5", which
+	 * absint() would silently turn into 5 — falls back to the documented
+	 * default rather than rendering something the author did not ask for.
+	 *
+	 * @param mixed $value Raw attribute.
+	 * @return int
+	 */
+	private static function limit( $value ): int {
+		if ( ! is_numeric( $value ) || (float) $value < 0 ) {
+			return self::DEFAULT_LIMIT;
+		}
+
+		return min( 100, absint( $value ) );
+	}
+
+	/**
 	 * Column count clamped to 1–6; null/'' → the site default.
 	 *
 	 * @param mixed $value   Raw value.
@@ -883,6 +927,42 @@ final class Renderer {
 	}
 
 	/**
+	 * Whether the current viewer should see the admin-only diagnostics that
+	 * some surfaces append to their output.
+	 *
+	 * Because those diagnostics live inside the rendered block, the HTML of a
+	 * public URL varies by viewer — so a full-page cache that is not set to
+	 * bypass logged-in users could store the admin variant and serve upstream
+	 * error detail to everyone. Whenever we are about to emit one we therefore
+	 * mark the response uncacheable, using the two signals the WordPress
+	 * caching ecosystem agrees on.
+	 *
+	 * @return bool
+	 */
+	private static function admin_context(): bool {
+		return is_user_logged_in() && current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Tell page caches not to store this response, because what is about to be
+	 * printed into it is visible to administrators only.
+	 *
+	 * @return void
+	 */
+	private static function mark_uncacheable(): void {
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			// The name is dictated by the page caches that read it (Batcache, WP Super
+			// Cache, W3 Total Cache); a publicanow_ prefix would simply not be seen.
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
+			define( 'DONOTCACHEPAGE', true );
+		}
+
+		if ( ! headers_sent() && function_exists( 'nocache_headers' ) ) {
+			nocache_headers();
+		}
+	}
+
+	/**
 	 * Creator slug of a normalised work, '' when unknown.
 	 *
 	 * @param array $work Normalised work.
@@ -956,18 +1036,34 @@ final class Renderer {
 		$link_url = '';
 		$name     = '';
 
+		// Admin-only note when the slug matched no creator we know of.
+		$unknown_creator_note = '';
+
+		/*
+		 * Only ever offer a fallback link to a creator we know exists: the
+		 * connect snapshot. An arbitrary creator="…" attribute is syntactically
+		 * valid but may name nobody, and sending a reader to a 404 on
+		 * publica.now is worse than showing no link at all.
+		 */
 		if ( '' !== $slug ) {
 			$snapshot = get_option( 'publicanow_creator', array() );
-			$creator  = array( 'slug' => $slug );
 
 			if ( is_array( $snapshot ) && isset( $snapshot['slug'] ) && $snapshot['slug'] === $slug ) {
-				$name = isset( $snapshot['name'] ) ? (string) $snapshot['name'] : '';
+				$creator = array( 'slug' => $slug );
+				$name    = isset( $snapshot['name'] ) ? (string) $snapshot['name'] : '';
+
 				if ( ! empty( $snapshot['url'] ) ) {
 					$creator['url'] = (string) $snapshot['url'];
 				}
-			}
 
-			$link_url = Links::creator( $creator );
+				$link_url = Links::creator( $creator );
+			} else {
+				$unknown_creator_note = sprintf(
+					/* translators: %s: creator slug from the block or shortcode. */
+					__( 'No publica.now creator matched “%s”, so no link is offered.', 'publica-now' ),
+					$slug
+				);
+			}
 		}
 
 		$message = isset( $opts['message'] ) ? (string) $opts['message'] : '';
@@ -987,8 +1083,11 @@ final class Renderer {
 		}
 
 		$admin_message = '';
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( self::admin_context() ) {
 			$admin_message = isset( $opts['admin_message'] ) ? (string) $opts['admin_message'] : '';
+			if ( '' !== $unknown_creator_note ) {
+				$admin_message = trim( $admin_message . ' ' . $unknown_creator_note );
+			}
 			if ( null !== $error ) {
 				$detail = $error->get_error_message();
 				$code   = (string) $error->get_error_code();

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Publica.now – Sell Ebooks, Audiobooks, Video & Print Books
+ * Plugin Name:       Publica.now
  * Plugin URI:        https://publica.now/wordpress
  * Description:       Show your publica.now catalog on your site and sell PDF, EPUB, audio, video and print-on-demand books. Checkout happens on publica.now.
  * Version:           1.0.0

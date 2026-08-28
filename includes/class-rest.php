@@ -130,6 +130,18 @@ final class Rest {
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_text_field',
+
+						/*
+						 * The picker only ever lists the connected creator's
+						 * works. Accepting arbitrary slugs would let anyone with
+						 * edit_posts spend the site's publica.now rate limit and
+						 * grow wp_options by two rows per slug they try.
+						 */
+						'validate_callback' => static function ( $value ) {
+							$value = is_string( $value ) ? trim( $value ) : '';
+
+							return '' === $value || Catalog::instance()->connected_slug() === $value;
+						},
 					),
 				),
 			)
@@ -193,8 +205,9 @@ final class Rest {
 	}
 
 	/**
-	 * POST /purge → {purged, creator|null}. The cache is purged even when
-	 * the follow-up profile refresh fails; that failure is reported inline.
+	 * POST /purge → {purged, creator|null}. Settings::refresh() re-reads the
+	 * API first and purges only on success, so a failure here means nothing was
+	 * cleared and the 7-day outage copy is intact; that is reported inline.
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -202,7 +215,7 @@ final class Rest {
 		$refreshed = Settings::instance()->refresh();
 
 		$payload = array(
-			'purged'  => true,
+			'purged'  => ! is_wp_error( $refreshed ),
 			'creator' => null,
 			'warning' => null,
 		);
@@ -270,19 +283,31 @@ final class Rest {
 	}
 
 	/**
-	 * GET /status → {connected, creator_slug, creator_name}.
+	 * GET /status → {connected, creator_slug, creator_name, defaults}.
+	 *
+	 * "defaults" carries the Settings → Publica.now display defaults so the
+	 * block editor can show the value a block will actually render with. The
+	 * corresponding attributes deliberately have no default in block.json:
+	 * they arrive undefined, and the server resolves the site setting.
 	 *
 	 * @return WP_REST_Response
 	 */
 	public function status() {
-		$slug    = Catalog::instance()->connected_slug();
-		$creator = Settings::creator();
+		$slug     = Catalog::instance()->connected_slug();
+		$creator  = Settings::creator();
+		$settings = Settings::all();
 
 		return $this->respond(
 			array(
 				'connected'    => '' !== $slug,
 				'creator_slug' => $slug,
 				'creator_name' => null !== $creator && isset( $creator['name'] ) ? (string) $creator['name'] : '',
+				'defaults'     => array(
+					'columns'      => (int) $settings['default_columns'],
+					'layout'       => (string) $settings['default_layout'],
+					'show_excerpt' => (bool) $settings['show_excerpt'],
+					'show_rating'  => (bool) $settings['show_rating'],
+				),
 			)
 		);
 	}
@@ -305,10 +330,11 @@ final class Rest {
 	}
 
 	/**
-	 * Short price label for the picker ("Free", "$12.99", "R$ 39,90", "12.99 CHF").
+	 * Short price label for the editor's work picker.
 	 *
-	 * Deliberately local: the picker must work even if Team B's Formatting
-	 * class is absent, and this label is only ever seen inside the editor.
+	 * Formatting::price() is the single price authority: a second symbol table
+	 * here made the picker and the card disagree by a factor of 100 for
+	 * zero-decimal currencies.
 	 *
 	 * @param array $work Normalised work.
 	 * @return string
@@ -320,32 +346,11 @@ final class Rest {
 
 		$cents = isset( $work['price_cents'] ) ? $work['price_cents'] : null;
 
-		if ( null === $cents ) {
+		if ( ! is_numeric( $cents ) ) {
 			return '';
 		}
 
-		$currency  = isset( $work['currency'] ) ? strtoupper( (string) $work['currency'] ) : 'USD';
-		$zero_dec  = in_array( $currency, array( 'JPY', 'KRW', 'CLP', 'ISK', 'HUF', 'VND' ), true );
-		$amount    = $zero_dec ? number_format_i18n( (int) $cents ) : number_format_i18n( ( (int) $cents ) / 100, 2 );
-		$prefixes  = array(
-			'USD' => '$',
-			'EUR' => '€',
-			'GBP' => '£',
-			'BRL' => 'R$ ',
-			'ARS' => 'AR$ ',
-			'MXN' => 'MX$ ',
-			'CAD' => 'CA$ ',
-			'AUD' => 'A$ ',
-			'JPY' => '¥',
-			'INR' => '₹',
-			'CLP' => 'CLP$ ',
-			'COP' => 'COP$ ',
-			'PEN' => 'S/ ',
-			'UYU' => '$U ',
-		);
-		$formatted = isset( $prefixes[ $currency ] ) ? $prefixes[ $currency ] . $amount : $amount . ' ' . $currency;
-
-		return $formatted;
+		return Formatting::price( (int) $cents, isset( $work['currency'] ) ? (string) $work['currency'] : 'USD' );
 	}
 
 	/**

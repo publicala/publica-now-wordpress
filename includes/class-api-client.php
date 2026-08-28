@@ -28,9 +28,11 @@ final class Api_Client {
 	const OAUTH_OPTION = 'publicanow_oauth';
 
 	/**
-	 * Transient holding the bearer token.
+	 * Prefix of the transient holding the bearer token. The environment (API
+	 * base + sandbox flag) is hashed into the name so a token minted against
+	 * production is never presented to staging or to the sandbox.
 	 */
-	const TOKEN_TRANSIENT = 'publicanow_token';
+	const TOKEN_PREFIX = 'publicanow_token_';
 
 	/**
 	 * The only scope the plugin ever asks for. Read-only over public data.
@@ -110,6 +112,28 @@ final class Api_Client {
 	}
 
 	/**
+	 * A short, stable fingerprint of the environment the plugin is talking to.
+	 *
+	 * Cache entries and the access token are keyed by it so that flipping
+	 * PUBLICANOW_SANDBOX, or pointing publicanow_api_base at staging, can never
+	 * serve production data — or send a production token to another host.
+	 *
+	 * @return string 12 hexadecimal characters.
+	 */
+	public function environment(): string {
+		return substr( md5( $this->base() . '|' . ( $this->is_sandbox() ? '1' : '0' ) ), 0, 12 );
+	}
+
+	/**
+	 * Transient name of the bearer token for the current environment.
+	 *
+	 * @return string
+	 */
+	public function token_transient(): string {
+		return self::TOKEN_PREFIX . $this->environment();
+	}
+
+	/**
 	 * Stored OAuth client, or null when none has been registered.
 	 *
 	 * @return array|null
@@ -130,7 +154,7 @@ final class Api_Client {
 	 * @return bool
 	 */
 	public function has_cached_token(): bool {
-		$token = get_transient( self::TOKEN_TRANSIENT );
+		$token = get_transient( $this->token_transient() );
 
 		return is_string( $token ) && '' !== $token;
 	}
@@ -141,7 +165,7 @@ final class Api_Client {
 	 * @return void
 	 */
 	public function forget_token() {
-		delete_transient( self::TOKEN_TRANSIENT );
+		delete_transient( $this->token_transient() );
 	}
 
 	/**
@@ -154,7 +178,15 @@ final class Api_Client {
 	}
 
 	/**
-	 * Make sure this site has an OAuth client, registering one if needed.
+	 * Register this site as an OAuth client, unless one is already stored.
+	 *
+	 * REGISTRATION IS AN ADMIN ACTION AND NOTHING ELSE. It creates credentials
+	 * at a third-party service, so it must only ever happen because a
+	 * `manage_options` user clicked Connect or Refresh (WordPress.org guideline
+	 * 7: no contact with external servers without explicit, authorised
+	 * consent). Read paths call token(), which refuses with
+	 * `publicanow_not_connected` when nothing is registered — the only entry
+	 * point that may register is authorize().
 	 *
 	 * Registration is self-serve (RFC 7591) and throttled at 10 per hour per
 	 * IP, which is why the client is persisted and reused for the life of
@@ -162,7 +194,7 @@ final class Api_Client {
 	 *
 	 * @return array|WP_Error The stored client array.
 	 */
-	public function ensure_client() {
+	private function register_client() {
 		$existing = $this->client();
 
 		if ( null !== $existing ) {
@@ -175,10 +207,11 @@ final class Api_Client {
 		$response = wp_remote_post(
 			$this->base() . '/oauth/register',
 			array(
-				'timeout'    => self::TIMEOUT,
-				'user-agent' => $this->user_agent(),
-				'headers'    => $this->headers( array( 'Content-Type' => 'application/json' ) ),
-				'body'       => wp_json_encode(
+				'timeout'     => self::TIMEOUT,
+				'redirection' => 0,
+				'user-agent'  => $this->user_agent(),
+				'headers'     => $this->headers( array( 'Content-Type' => 'application/json' ) ),
+				'body'        => wp_json_encode(
 					array(
 						'client_name' => sprintf( 'WordPress site %s', $host ),
 						'scope'       => self::SCOPE,
@@ -221,35 +254,66 @@ final class Api_Client {
 	}
 
 	/**
+	 * The one entry point that may create credentials at publica.now.
+	 *
+	 * Called only from Settings::connect() and Settings::refresh(), both of
+	 * which are behind `manage_options` plus a nonce. Registers a client when
+	 * the site has none, and replaces one the server no longer recognises
+	 * (`invalid_client`) — the replacement happens here, and never inside a
+	 * front-end render, so a revoked client cannot make every page view mint a
+	 * brand-new one.
+	 *
+	 * @return string|WP_Error A usable bearer token.
+	 */
+	public function authorize() {
+		$client = $this->register_client();
+		if ( is_wp_error( $client ) ) {
+			return $client;
+		}
+
+		$token = $this->token();
+
+		if ( is_wp_error( $token ) && 'invalid_client' === $this->oauth_error_code( $token ) ) {
+			$this->forget_client();
+			$this->forget_token();
+
+			$client = $this->register_client();
+			if ( is_wp_error( $client ) ) {
+				return $client;
+			}
+
+			$token = $this->token();
+		}
+
+		return $token;
+	}
+
+	/**
 	 * A valid bearer token, from the transient or freshly minted.
+	 *
+	 * Never registers a client: when none is stored the call fails with
+	 * `publicanow_not_connected` so that an anonymous page view can never make
+	 * the site create credentials at publica.now. See authorize().
 	 *
 	 * @param bool $force Skip the cached token.
 	 * @return string|WP_Error
 	 */
 	public function token( bool $force = false ) {
+		$transient = $this->token_transient();
+
 		if ( ! $force ) {
-			$cached = get_transient( self::TOKEN_TRANSIENT );
+			$cached = get_transient( $transient );
 			if ( is_string( $cached ) && '' !== $cached ) {
 				return $cached;
 			}
 		}
 
-		$client = $this->ensure_client();
-		if ( is_wp_error( $client ) ) {
-			return $client;
+		$client = $this->client();
+		if ( null === $client ) {
+			return $this->not_connected_error();
 		}
 
 		$minted = $this->mint( $client );
-
-		if ( is_wp_error( $minted ) && 'invalid_client' === $this->oauth_error_code( $minted ) ) {
-			// The client was revoked or purged server-side: register once more.
-			$this->forget_client();
-			$client = $this->ensure_client();
-			if ( is_wp_error( $client ) ) {
-				return $client;
-			}
-			$minted = $this->mint( $client );
-		}
 
 		if ( is_wp_error( $minted ) ) {
 			return $minted;
@@ -258,9 +322,22 @@ final class Api_Client {
 		$expires_in = isset( $minted['expires_in'] ) ? (int) $minted['expires_in'] : HOUR_IN_SECONDS;
 		$ttl        = max( 60, $expires_in - self::TOKEN_SAFETY_MARGIN );
 
-		set_transient( self::TOKEN_TRANSIENT, $minted['access_token'], $ttl );
+		set_transient( $transient, $minted['access_token'], $ttl );
 
 		return $minted['access_token'];
+	}
+
+	/**
+	 * The error every read path returns when the site has never been connected.
+	 *
+	 * @return WP_Error
+	 */
+	private function not_connected_error(): WP_Error {
+		return new WP_Error(
+			'publicanow_not_connected',
+			__( 'Connect your publica.now account in Settings → Publica.now.', 'publica-now' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**
@@ -306,7 +383,7 @@ final class Api_Client {
 	 * @return bool
 	 */
 	public function revoke(): bool {
-		$token  = get_transient( self::TOKEN_TRANSIENT );
+		$token  = get_transient( $this->token_transient() );
 		$client = $this->client();
 
 		$this->forget_token();
@@ -318,10 +395,11 @@ final class Api_Client {
 		$response = wp_remote_post(
 			$this->base() . '/oauth/revoke',
 			array(
-				'timeout'    => self::TIMEOUT,
-				'user-agent' => $this->user_agent(),
-				'headers'    => $this->headers( $this->basic_auth( $client ) ),
-				'body'       => array(
+				'timeout'     => self::TIMEOUT,
+				'redirection' => 0,
+				'user-agent'  => $this->user_agent(),
+				'headers'     => $this->headers( $this->basic_auth( $client ) ),
+				'body'        => array(
 					'token'           => $token,
 					'token_type_hint' => 'access_token',
 					'client_id'       => $client['client_id'],
@@ -372,9 +450,12 @@ final class Api_Client {
 		$response = wp_remote_get(
 			$url,
 			array(
-				'timeout'    => self::TIMEOUT,
-				'user-agent' => $this->user_agent(),
-				'headers'    => $this->headers( array( 'Authorization' => 'Bearer ' . $token ) ),
+				'timeout'     => self::TIMEOUT,
+				// Never follow a redirect: WordPress replays the request with the
+				// original Authorization header, at whatever host it points to.
+				'redirection' => 0,
+				'user-agent'  => $this->user_agent(),
+				'headers'     => $this->headers( array( 'Authorization' => 'Bearer ' . $token ) ),
 			)
 		);
 
@@ -399,15 +480,16 @@ final class Api_Client {
 		$response = wp_remote_post(
 			$this->base() . '/oauth/token',
 			array(
-				'timeout'    => self::TIMEOUT,
-				'user-agent' => $this->user_agent(),
-				'headers'    => $this->headers(
+				'timeout'     => self::TIMEOUT,
+				'redirection' => 0,
+				'user-agent'  => $this->user_agent(),
+				'headers'     => $this->headers(
 					array_merge(
 						array( 'Content-Type' => 'application/x-www-form-urlencoded' ),
 						$this->basic_auth( $client )
 					)
 				),
-				'body'       => array(
+				'body'        => array(
 					'grant_type'    => 'client_credentials',
 					'client_id'     => $client['client_id'],
 					'client_secret' => $client['client_secret'],

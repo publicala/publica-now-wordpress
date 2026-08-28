@@ -22,7 +22,6 @@ return array(
 		'wp-server-side-render',
 		'wp-api-fetch',
 		'wp-i18n',
-		'wp-data',
 	),
 	'version'      => defined( 'PUBLICANOW_VERSION' ) ? PUBLICANOW_VERSION : '1.0.0',
 );

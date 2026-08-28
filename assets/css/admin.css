@@ -117,7 +117,7 @@
 	text-transform: uppercase;
 	padding: 5px 8px;
 	border-radius: 999px;
-	margin-left: 6px;
+	margin-inline-start: 6px;
 }
 
 .publicanow-badge-verified {
@@ -209,7 +209,7 @@
 /* Activation notice */
 
 .publicanow-notice .button-link {
-	margin-left: 8px;
+	margin-inline-start: 8px;
 }
 
 @media (max-width: 782px) {

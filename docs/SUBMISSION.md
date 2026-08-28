@@ -168,8 +168,8 @@ factual, in English). Paste:
 > before the administrator clicks Connect. The readme's "External Services" section
 > lists every request, when it happens, what is sent (creator slug, site host name,
 > standard HTTP metadata) and links to https://publica.now/terms and
-> https://publica.now/privacy. There is no tracking, no "powered by" link (an opt-in
-> setting exists, off by default), and no paid tier inside the plugin. Source:
+> https://publica.now/privacy. There is no tracking, no "powered by" link, and no
+> paid tier inside the plugin. Source:
 > https://github.com/publicala/publica-now-wordpress . Plugin Check (plugin_repo,
 > severity ≥ 7) passes locally; PHPCS WordPress + WordPress-Extra + PHPCompatibilityWP
 > 7.4- passes in CI.
@@ -371,7 +371,7 @@ job stays mandatory on every pull request.
 | 15 | **`load_plugin_textdomain()` discouraged** (Plugin Check warning) | Tempting to add "for sites that install from GitHub". | Not called: WordPress ≥ 4.6 loads WordPress.org language packs just in time, and the plugin ships no `.mo` files. Keep it out. |
 | 16 | **Trialware / paid tier in code** (Guideline 5) | The service has paid features. | No feature in the plugin is gated on a plan; everything gates server-side on publica.now. |
 | 17 | **Compliance claims** (Guideline 9) | Tempting to say "handles VAT". | The readme says publica.now handles checkout, payment processing, delivery, refunds and payouts; it makes no tax/VAT/GDPR compliance claim. Keep it that way in future copy. |
-| 18 | **"Powered by" credit** (Guideline 10) | `show_powered_by` exists. | Default **false**; opt-in only. |
+| 18 | **"Powered by" credit** (Guideline 10) | An early draft carried a `show_powered_by` setting. | Removed: the plugin renders no credit link and has no setting for one. A control that ships off is dead weight, so there is nothing to default. |
 | 19 | **External URL as `add_menu_page()` target** (Plugin Check error) | Links to the publica.now dashboard. | Only a `Settings → Publica.now` options page; external links are ordinary anchors on that page and in the plugin-row meta. |
 | 20 | **Block API version** (`block.json` `apiVersion` < 3 is an error for the WordPress 7 iframed editor) | Three blocks. | All three declare `apiVersion: 3`; CI's block.json step fails otherwise. |
 

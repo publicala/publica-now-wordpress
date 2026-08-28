@@ -15,15 +15,25 @@
 	var i18n = ( window.wp && window.wp.i18n ) ? window.wp.i18n : null;
 	var apiFetch = ( window.wp && window.wp.apiFetch ) ? window.wp.apiFetch : null;
 
-	/**
-	 * Translate, falling back to the source string when wp.i18n is missing.
-	 *
-	 * @param {string} text Source string.
-	 * @return {string} Translated string.
+	/*
+	 * wp.i18n directly, with the text domain at every call site. A local
+	 * __( text ) wrapper would be invisible to `wp i18n make-pot` and to
+	 * translate.wordpress.org, which both match __( 'string', 'domain' )
+	 * literally — every string in this file would silently be untranslatable.
 	 */
-	function __( text ) {
-		return i18n ? i18n.__( text, 'publica-now' ) : text;
-	}
+	var __ = i18n ? i18n.__ : function ( text ) {
+		return text;
+	};
+	var _n = i18n ? i18n._n : function ( single, plural, number ) {
+		return 1 === number ? single : plural;
+	};
+	var sprintf = i18n && i18n.sprintf ? i18n.sprintf : function ( format ) {
+		var args = Array.prototype.slice.call( arguments, 1 );
+		var index = 0;
+		return String( format ).replace( /%[sd]/g, function () {
+			return args[ index++ ];
+		} );
+	};
 
 	/**
 	 * Call one of the plugin's REST routes.
@@ -82,7 +92,7 @@
 		if ( error && typeof error.message === 'string' && error.message ) {
 			return error.message;
 		}
-		return __( 'Something went wrong. Please try again.' );
+		return __( 'Something went wrong. Please try again.', 'publica-now' );
 	}
 
 	/**
@@ -127,11 +137,16 @@
 
 			event.preventDefault();
 			setBusy( connectForm, true );
-			setStatus( status, 'busy', __( 'Checking your profile on publica.now…' ) );
+			setStatus( status, 'busy', __( 'Checking your profile on publica.now…', 'publica-now' ) );
 
 			request( '/connect', 'POST', { creator: value } ).then( function ( result ) {
 				var name = result && result.creator && result.creator.name ? result.creator.name : value;
-				setStatus( status, 'success', __( 'Connected to' ) + ' ' + name + '. ' + __( 'Reloading…' ) );
+				setStatus(
+					status,
+					'success',
+					/* translators: %s: publica.now creator name. */
+					sprintf( __( 'Connected to %s. Reloading…', 'publica-now' ), name )
+				);
 				window.location.reload();
 			} ).catch( function ( error ) {
 				setBusy( connectForm, false );
@@ -164,9 +179,9 @@
 			setBusy( scope, true );
 
 			if ( action === 'disconnect' ) {
-				setStatus( status, 'busy', __( 'Disconnecting…' ) );
+				setStatus( status, 'busy', __( 'Disconnecting…', 'publica-now' ) );
 				request( '/disconnect', 'POST', {} ).then( function () {
-					setStatus( status, 'success', __( 'Disconnected. Reloading…' ) );
+					setStatus( status, 'success', __( 'Disconnected. Reloading…', 'publica-now' ) );
 					window.location.reload();
 				} ).catch( function ( error ) {
 					setBusy( scope, false );
@@ -176,19 +191,25 @@
 			}
 
 			if ( action === 'purge' ) {
-				setStatus( status, 'busy', __( 'Refreshing your catalog…' ) );
+				setStatus( status, 'busy', __( 'Refreshing your catalog…', 'publica-now' ) );
 				request( '/purge', 'POST', {} ).then( function ( result ) {
 					setBusy( scope, false );
 					if ( result && result.warning ) {
-						setStatus( status, 'error', __( 'Cache cleared, but publica.now could not be reached:' ) + ' ' + result.warning );
+						/* translators: %s: error message from publica.now. */
+						var failed = __( 'Nothing was cleared: publica.now could not be reached (%s).', 'publica-now' );
+						setStatus( status, 'error', sprintf( failed, result.warning ) );
 						return;
 					}
+
 					var count = result && result.creator && typeof result.creator.works_count === 'number' ? result.creator.works_count : null;
-					setStatus(
-						status,
-						'success',
-						count === null ? __( 'Catalog refreshed.' ) : __( 'Catalog refreshed.' ) + ' ' + count + ' ' + __( 'published works.' )
-					);
+					var message = __( 'Catalog refreshed.', 'publica-now' );
+
+					if ( count !== null ) {
+						/* translators: %s: number of published works. */
+						message = sprintf( _n( 'Catalog refreshed. %s published work.', 'Catalog refreshed. %s published works.', count, 'publica-now' ), count );
+					}
+
+					setStatus( status, 'success', message );
 				} ).catch( function ( error ) {
 					setBusy( scope, false );
 					setStatus( status, 'error', errorMessage( error ) );
@@ -254,7 +275,7 @@
 			}
 
 			copyText( target.textContent ).then( function () {
-				button.textContent = __( 'Copied' );
+				button.textContent = __( 'Copied', 'publica-now' );
 				button.classList.add( 'publicanow-copied' );
 				window.setTimeout( function () {
 					button.textContent = originalLabel;
@@ -267,7 +288,7 @@
 				var selection = window.getSelection();
 				selection.removeAllRanges();
 				selection.addRange( range );
-				button.textContent = __( 'Press Ctrl/Cmd+C' );
+				button.textContent = __( 'Press Ctrl/Cmd+C', 'publica-now' );
 				window.setTimeout( function () {
 					button.textContent = originalLabel;
 				}, 2400 );

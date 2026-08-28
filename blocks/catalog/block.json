@@ -6,7 +6,7 @@
 	"category": "widgets",
 	"icon": "book-alt",
 	"description": "Show your Publica.now works as a grid or list: covers, prices, badges and Buy / Read free / Order paperback buttons that send readers to publica.now.",
-	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "book", "shop" ],
+	"keywords": [ "publica", "ebook", "audiobook", "sell", "print", "pdf", "book", "shop", "store" ],
 	"textdomain": "publica-now",
 	"attributes": {
 		"creator": {
@@ -38,20 +38,16 @@
 			"default": 12
 		},
 		"columns": {
-			"type": "number",
-			"default": 3
+			"type": "number"
 		},
 		"layout": {
-			"type": "string",
-			"default": "grid"
+			"type": "string"
 		},
 		"show_excerpt": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"show_rating": {
-			"type": "boolean",
-			"default": true
+			"type": "boolean"
 		},
 		"show_author": {
 			"type": "boolean",

@@ -144,6 +144,35 @@ jobs:
           path: dist/publica-now
           if-no-files-found: error
 
+  contract:
+    name: Normalisation contract test
+    runs-on: ubuntu-latest
+    needs: [php]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install wp-env
+        run: npm ci --no-audit --no-fund
+
+      # wp-env boots WordPress in Docker (available on ubuntu-latest runners),
+      # so the fixtures run against the real esc_url_raw / wp_strip_all_tags
+      # rather than stubs. docs/PLAN.md §9 item 8.
+      - name: Start WordPress
+        run: npx wp-env start
+
+      - name: Run the contract test
+        run: npx wp-env run cli wp eval-file wp-content/plugins/publica-now/tests/contract-test.php
+
+      - name: Stop WordPress
+        if: always()
+        run: npx wp-env stop || true
+
   plugin-check:
     name: Plugin Check (plugin_repo)
     runs-on: ubuntu-latest

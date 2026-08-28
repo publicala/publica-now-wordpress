@@ -99,6 +99,15 @@ final class Site_Health {
 			$result['label']       = __( 'Publica.now is not connected', 'publica-now' );
 			$result['description'] = '<p>' . esc_html__( 'The plugin is active but no publica.now account is connected, so catalog blocks and shortcodes have nothing to show. Paste your profile URL in the settings to connect.', 'publica-now' ) . '</p>';
 
+			/*
+			 * An unconnected site should hold no credentials: Disconnect
+			 * revokes and deletes them. Anything left over is worth naming
+			 * here rather than only in the debug section.
+			 */
+			if ( null !== Api_Client::instance()->client() ) {
+				$result['description'] .= '<p>' . esc_html__( 'This site still holds API credentials registered with publica.now from an earlier connection. Connect again to use them, or delete the plugin to remove them.', 'publica-now' ) . '</p>';
+			}
+
 			return $result;
 		}
 
@@ -262,7 +271,7 @@ final class Site_Health {
 							__( 'Yes, on %s', 'publica-now' ),
 							wp_date( get_option( 'date_format' ), (int) $oauth['registered_at'] )
 						)
-						: __( 'No (registered on first use)', 'publica-now' ),
+						: __( 'No (registered when you connect)', 'publica-now' ),
 					'debug' => null !== $oauth ? gmdate( 'c', (int) $oauth['registered_at'] ) : 'none',
 				),
 			),

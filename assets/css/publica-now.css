@@ -193,6 +193,10 @@
 	font-size: 1.05rem;
 	font-weight: 600;
 	line-height: 1.3;
+	/* A single long word (a German compound title, a bare URL) would otherwise
+	   paint straight across its neighbours and give the whole page a
+	   horizontal scrollbar, because the grid track is minmax(0, 1fr). */
+	overflow-wrap: anywhere;
 }
 
 .publicanow-card__title a,
@@ -213,6 +217,7 @@
 .publicanow-inline__excerpt {
 	margin: 0;
 	font-size: 0.9rem;
+	overflow-wrap: anywhere;
 }
 
 .publicanow-card__author,

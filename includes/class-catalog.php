@@ -245,7 +245,7 @@ final class Catalog {
 	 * - offset       (int)       Skip this many after filtering/sorting.
 	 *
 	 * @param array $args Query arguments, see above.
-	 * @return array|WP_Error {items: array[], total: int, source: 'api'|'cache'|'stale', error: WP_Error|null}
+	 * @return array|WP_Error {items: array[], total: int, source: 'api'|'cache'|'stale', error: WP_Error|null, truncated: bool}
 	 */
 	public function works( array $args = array() ) {
 		$args = wp_parse_args(
@@ -262,18 +262,21 @@ final class Catalog {
 			)
 		);
 
+		/*
+		 * Nothing reads the API before an administrator has connected an
+		 * account — not even with an explicit creator attribute. Registering
+		 * the OAuth client belongs to the connect flow, so an unconnected site
+		 * must fall through to the empty state instead of contacting
+		 * publica.now from a (possibly anonymous) page render.
+		 */
+		if ( '' === $this->connected_slug() ) {
+			return $this->not_connected_error();
+		}
+
 		$creator_input = trim( (string) $args['creator'] );
 		$slug          = '' === $creator_input ? $this->connected_slug() : self::normalise_slug( $creator_input );
 
 		if ( '' === $slug ) {
-			if ( '' === $creator_input ) {
-				return new WP_Error(
-					'publicanow_not_connected',
-					__( 'Connect your publica.now account in Settings → Publica.now, or set the creator attribute.', 'publica-now' ),
-					array( 'status' => 400 )
-				);
-			}
-
 			return $this->invalid_slug_error();
 		}
 
@@ -339,10 +342,14 @@ final class Catalog {
 		}
 
 		return array(
-			'items'  => array_map( array( $this, 'finish_work' ), $items ),
-			'total'  => $total,
-			'source' => $all['source'],
-			'error'  => $all['error'],
+			'items'     => array_map( array( $this, 'finish_work' ), $items ),
+			'total'     => $total,
+			'source'    => $all['source'],
+			'error'     => $all['error'],
+			// The crawl stops at MAX_PAGES × PAGE_SIZE. Landing exactly on the
+			// cap means the creator's catalog is at or beyond it and what we
+			// hold is very probably partial; admins are told so.
+			'truncated' => count( $all['items'] ) >= ( self::MAX_PAGES * self::PAGE_SIZE ),
 		);
 	}
 
@@ -362,6 +369,11 @@ final class Catalog {
 				__( 'That is not a valid publica.now work id or slug.', 'publica-now' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// Same rule as works(): no API contact before an admin has connected.
+		if ( '' === $this->connected_slug() ) {
+			return $this->not_connected_error();
 		}
 
 		$lookup = strtolower( $key );
@@ -384,7 +396,21 @@ final class Catalog {
 			}
 		}
 
-		$response = Api_Client::instance()->get( '/api/v1/public/works/' . rawurlencode( $key ) );
+		/*
+		 * A recent failure is replayed instead of repeated: during an outage
+		 * every visitor would otherwise pay their own 10-second blocking
+		 * request, and the site would keep hammering an API that is already
+		 * refusing it.
+		 */
+		$response = $bypass_cache ? null : Cache::get_failure( $name );
+
+		if ( null === $response ) {
+			$response = Api_Client::instance()->get( '/api/v1/public/works/' . rawurlencode( $key ) );
+
+			if ( is_wp_error( $response ) ) {
+				Cache::set_failure( $name, $response );
+			}
+		}
 
 		if ( is_wp_error( $response ) ) {
 			if ( 'publicanow_not_found' !== $response->get_error_code() ) {
@@ -414,6 +440,7 @@ final class Catalog {
 
 		$work = $this->normalise_work( $raw );
 		Cache::set( $name, $work );
+		Cache::clear_failure( $name );
 
 		return $this->finish_work( $work );
 	}
@@ -464,10 +491,21 @@ final class Catalog {
 			}
 		}
 
-		$fetched = $this->fetch_all_works( $slug );
+		// See work(): an outage is remembered for a minute rather than re-tried
+		// on every single page view.
+		$fetched = $bypass_cache ? null : Cache::get_failure( $name );
+
+		if ( null === $fetched ) {
+			$fetched = $this->fetch_all_works( $slug );
+
+			if ( is_wp_error( $fetched ) ) {
+				Cache::set_failure( $name, $fetched );
+			}
+		}
 
 		if ( ! is_wp_error( $fetched ) ) {
 			Cache::set( $name, $fetched );
+			Cache::clear_failure( $name );
 
 			return array(
 				'items'  => $fetched,
@@ -900,9 +938,15 @@ final class Catalog {
 	}
 
 	/**
-	 * The stable cover URL. Today's API hands out a signed storage URL that
-	 * expires within the hour — useless inside a 15-minute/7-day cache — so
-	 * any signed URL is swapped for the route-based cover, which never expires.
+	 * The stable cover URL: always publica.now's own `/works/{id}/cover` route
+	 * whenever the API hands back a cover stored anywhere else.
+	 *
+	 * Two reasons, both real. Signed storage URLs expire within the hour, which
+	 * is useless inside a 15-minute/7-day cache. And a creator-supplied cover on
+	 * a third-party CDN would make every visitor's browser call a host neither
+	 * readme.txt's External Services section nor the suggested privacy text
+	 * names — an undisclosed third party. The route covers both: it never
+	 * expires and it is served by publica.now.
 	 *
 	 * @param mixed  $raw  Raw cover_url.
 	 * @param string $id   Work id.
@@ -916,13 +960,39 @@ final class Catalog {
 			return null;
 		}
 
+		if ( '' === $id ) {
+			return self::same_host( $cover, $base ) ? $cover : null;
+		}
+
+		if ( ! self::same_host( $cover, $base ) ) {
+			return $base . '/works/' . rawurlencode( $id ) . '/cover';
+		}
+
 		$query = wp_parse_url( $cover, PHP_URL_QUERY );
 
-		if ( '' !== $id && is_string( $query ) && preg_match( '/(^|&)(X-Amz-[A-Za-z-]+|Signature|Expires|token)=/i', $query ) ) {
+		if ( is_string( $query ) && preg_match( '/(^|&)(X-Amz-[A-Za-z-]+|Signature|Expires|token)=/i', $query ) ) {
 			return $base . '/works/' . rawurlencode( $id ) . '/cover';
 		}
 
 		return $cover;
+	}
+
+	/**
+	 * Whether a URL is served by the same host as the API base.
+	 *
+	 * @param string $url  Absolute URL.
+	 * @param string $base API base.
+	 * @return bool
+	 */
+	private static function same_host( string $url, string $base ): bool {
+		$url_host  = wp_parse_url( $url, PHP_URL_HOST );
+		$base_host = wp_parse_url( $base, PHP_URL_HOST );
+
+		if ( ! is_string( $url_host ) || ! is_string( $base_host ) ) {
+			return false;
+		}
+
+		return strtolower( $url_host ) === strtolower( $base_host );
 	}
 
 	/**
@@ -940,7 +1010,13 @@ final class Catalog {
 	}
 
 	/**
-	 * An http(s) URL or null.
+	 * An absolute http(s) URL or null.
+	 *
+	 * Sanitising with esc_url_raw() kills every script-executing scheme but
+	 * leaves scheme-relative ("//host/x"), root-relative ("/wp-admin/…"),
+	 * query-only and fragment-only values untouched, so the explicit https?://
+	 * test below is what actually makes the return value the absolute URL the
+	 * callers (and readme.txt) claim it is.
 	 *
 	 * @param mixed $value Raw value.
 	 * @return string|null
@@ -952,7 +1028,13 @@ final class Catalog {
 
 		$url = esc_url_raw( trim( $value ), array( 'http', 'https' ) );
 
-		return '' === $url ? null : $url;
+		if ( '' === $url || ! preg_match( '#^https?://#i', $url ) ) {
+			return null;
+		}
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		return is_string( $host ) && '' !== $host ? $url : null;
 	}
 
 	/**
@@ -1007,6 +1089,19 @@ final class Catalog {
 		$value = trim( $value );
 
 		return false === strtotime( $value ) ? null : $value;
+	}
+
+	/**
+	 * Shared "no account has been connected yet" error.
+	 *
+	 * @return WP_Error
+	 */
+	private function not_connected_error(): WP_Error {
+		return new WP_Error(
+			'publicanow_not_connected',
+			__( 'Connect your publica.now account in Settings → Publica.now.', 'publica-now' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**
