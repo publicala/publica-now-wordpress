@@ -5,10 +5,11 @@
 # Build output: bin/build-zip.sh writes dist/publica-now/ and dist/publica-now-{version}.zip
 /dist/
 
-# Lock files are not committed: the toolchain is dev-only and every consumer
-# resolves fresh against the ranges in composer.json / package.json.
-/composer.lock
-/package-lock.json
+# Lock files ARE committed. The toolchain is dev-only, but CI runs `npm ci`
+# and `composer install`, both of which require a lockfile and fail without
+# one. Committing them also pins the versions that produced a green run, so a
+# gate cannot start failing because an upstream release moved underneath it.
+# Neither file ships: .distignore keeps both out of the plugin zip.
 
 # Tool caches
 /.phpcs-cache
