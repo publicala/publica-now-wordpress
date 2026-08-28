@@ -166,6 +166,13 @@ jobs:
       - name: Start WordPress
         run: npx wp-env start
 
+      # wp-env mounts the plugin but does not activate it, and the contract
+      # test refuses to run against an inactive plugin (it would silently
+      # test nothing). A local checkout usually has it active already, which
+      # is exactly why this was missing.
+      - name: Activate the plugin
+        run: npx wp-env run cli wp plugin activate publica-now
+
       - name: Run the contract test
         run: npx wp-env run cli wp eval-file wp-content/plugins/publica-now/tests/contract-test.php
 
