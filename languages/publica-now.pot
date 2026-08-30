@@ -542,7 +542,7 @@ msgid "New to Publica.now?"
 msgstr ""
 
 #: includes/class-settings.php:1137
-msgid "Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 20% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site."
+msgid "Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 15% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site."
 msgstr ""
 
 #: includes/class-settings.php:1141

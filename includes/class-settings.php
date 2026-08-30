@@ -1134,7 +1134,7 @@ final class Settings {
 	private function render_onramp_section() {
 		echo '<section class="publicanow-section publicanow-onramp" id="publicanow-new">';
 		echo '<h2>' . esc_html__( 'New to Publica.now?', 'publica-now' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 20% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site.', 'publica-now' ) . '</p>';
+		echo '<p>' . esc_html__( 'Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 15% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site.', 'publica-now' ) . '</p>';
 		printf(
 			'<p><a class="button button-primary" href="%s" target="_blank" rel="noopener">%s</a></p>',
 			esc_url( self::signup_url() ),
