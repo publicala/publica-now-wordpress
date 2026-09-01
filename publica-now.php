@@ -112,8 +112,7 @@ function publicanow_environment_notice() {
 }
 
 /**
- * Activation: remember when we were activated (drives the one-time connect
- * notice) and seed default settings without overwriting existing ones.
+ * Activation: seed default settings without overwriting existing ones.
  *
  * @param bool $network_wide Whether the plugin is being network-activated.
  * @return void

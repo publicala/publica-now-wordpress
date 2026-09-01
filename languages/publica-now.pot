@@ -9,16 +9,16 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-28T14:30:16+00:00\n"
+"POT-Creation-Date: 2026-08-31T11:02:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: publica-now\n"
 
 #. Plugin Name of the plugin
 #: publica-now.php
-#: includes/class-settings.php:499
-#: includes/class-settings.php:500
-#: includes/class-settings.php:894
+#: includes/class-settings.php:486
+#: includes/class-settings.php:487
+#: includes/class-settings.php:794
 #: includes/class-site-health.php:85
 #: includes/class-site-health.php:207
 msgid "Publica.now"
@@ -163,7 +163,7 @@ msgid "View on Publica.now"
 msgstr ""
 
 #: includes/class-links.php:288
-#: includes/class-settings.php:611
+#: includes/class-settings.php:598
 msgid "Buy"
 msgstr ""
 
@@ -285,267 +285,250 @@ msgstr ""
 msgid "Free"
 msgstr ""
 
-#: includes/class-settings.php:212
+#: includes/class-settings.php:201
 msgid "Paste your publica.now profile URL (https://publica.now/creators/your-name) or just your creator slug."
 msgstr ""
 
 #. translators: %s: creator slug.
-#: includes/class-settings.php:236
+#: includes/class-settings.php:225
 #, php-format
 msgid "No publica.now creator is published under “%s”. Check the URL of your public profile."
 msgstr ""
 
-#: includes/class-settings.php:328
+#: includes/class-settings.php:317
 msgid "No publica.now account is connected."
 msgstr ""
 
-#: includes/class-settings.php:515
+#: includes/class-settings.php:502
 msgid "Display defaults"
 msgstr ""
 
-#: includes/class-settings.php:521
+#: includes/class-settings.php:508
 msgid "Default layout"
 msgstr ""
 
-#: includes/class-settings.php:522
+#: includes/class-settings.php:509
 msgid "Default columns"
 msgstr ""
 
-#: includes/class-settings.php:523
+#: includes/class-settings.php:510
 msgid "Excerpts"
 msgstr ""
 
-#: includes/class-settings.php:524
+#: includes/class-settings.php:511
 msgid "Ratings"
 msgstr ""
 
-#: includes/class-settings.php:525
+#: includes/class-settings.php:512
 #: blocks/buy-button/index.js:233
 #: blocks/catalog/index.js:259
 #: blocks/work/index.js:249
 msgid "Button text"
 msgstr ""
 
-#: includes/class-settings.php:526
+#: includes/class-settings.php:513
 msgid "Links"
 msgstr ""
 
-#: includes/class-settings.php:527
+#: includes/class-settings.php:514
 msgid "Cache"
 msgstr ""
 
-#: includes/class-settings.php:551
+#: includes/class-settings.php:538
 msgid "Defaults for every catalog, work and button you place. Each block and shortcode can override them."
 msgstr ""
 
-#: includes/class-settings.php:576
+#: includes/class-settings.php:563
 #: blocks/catalog/index.js:63
 msgid "Grid"
 msgstr ""
 
-#: includes/class-settings.php:577
+#: includes/class-settings.php:564
 #: blocks/catalog/index.js:64
 msgid "List"
 msgstr ""
 
-#: includes/class-settings.php:590
+#: includes/class-settings.php:577
 msgid "Columns in the grid layout on wide screens (1–6)."
 msgstr ""
 
-#: includes/class-settings.php:601
+#: includes/class-settings.php:588
 msgid "Seconds to keep catalog data before asking publica.now again. Default 900 (15 minutes). A copy is always kept for 7 days in case publica.now is unreachable."
 msgstr ""
 
-#: includes/class-settings.php:612
+#: includes/class-settings.php:599
 msgid "Replaces the “Buy” label. “Read free” and “Order paperback” stay as they are."
 msgstr ""
 
-#: includes/class-settings.php:617
+#: includes/class-settings.php:604
 msgid "Show the excerpt on cards"
 msgstr ""
 
-#: includes/class-settings.php:621
+#: includes/class-settings.php:608
 msgid "Show the rating when a work has one"
 msgstr ""
 
-#: includes/class-settings.php:625
+#: includes/class-settings.php:612
 msgid "Open publica.now in a new tab"
 msgstr ""
 
-#: includes/class-settings.php:725
-msgid "Publica.now is ready."
-msgstr ""
-
-#: includes/class-settings.php:726
-msgid "Connect your publica.now account to start showing your books on this site."
-msgstr ""
-
-#: includes/class-settings.php:731
-msgid "Connect now"
-msgstr ""
-
-#: includes/class-settings.php:736
-msgid "Dismiss"
-msgstr ""
-
 #. translators: %s: creator name.
-#: includes/class-settings.php:777
+#: includes/class-settings.php:702
 #, php-format
 msgid "Connected to %s."
 msgstr ""
 
-#: includes/class-settings.php:791
+#: includes/class-settings.php:716
 msgid "Disconnected. The API credentials were revoked and deleted; your display settings were kept."
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-settings.php:809
+#: includes/class-settings.php:734
 #, php-format
 msgid "Nothing was cleared: publica.now could not be reached (%s). Your saved copy of the catalog is still being shown."
 msgstr ""
 
-#: includes/class-settings.php:815
+#: includes/class-settings.php:740
 #: assets/js/admin.js:205
 msgid "Catalog refreshed."
 msgstr ""
 
-#: includes/class-settings.php:825
-#: includes/class-settings.php:851
-#: includes/class-settings.php:886
+#: includes/class-settings.php:751
+#: includes/class-settings.php:786
 msgid "You are not allowed to do that."
 msgstr ""
 
-#: includes/class-settings.php:897
+#: includes/class-settings.php:797
 msgid "Sandbox mode is on: the plugin reads publica.now’s fixture catalog, not real data."
 msgstr ""
 
-#: includes/class-settings.php:917
+#: includes/class-settings.php:817
 msgid "Your publica.now account"
 msgstr ""
 
-#: includes/class-settings.php:920
+#: includes/class-settings.php:820
 msgid "Paste the URL of your public profile on publica.now. The plugin reads your published works from there — nothing is written to your account."
 msgstr ""
 
-#: includes/class-settings.php:925
+#: includes/class-settings.php:825
 msgid "Profile URL or creator slug"
 msgstr ""
 
-#: includes/class-settings.php:930
+#: includes/class-settings.php:830
 msgid "Connect"
 msgstr ""
 
-#: includes/class-settings.php:956
+#: includes/class-settings.php:856
 #: includes/class-site-health.php:233
 msgid "Verified website"
 msgstr ""
 
 #. translators: %s: number of works.
-#: includes/class-settings.php:966
+#: includes/class-settings.php:866
 #, php-format
 msgid "%s published work"
 msgid_plural "%s published works"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings.php:971
+#: includes/class-settings.php:871
 msgid "View profile on publica.now"
 msgstr ""
 
 #. translators: %s: this site's home URL.
-#: includes/class-settings.php:980
+#: includes/class-settings.php:880
 #, php-format
 msgid "Add %s as your website on publica.now to show the “Verified website” badge here."
 msgstr ""
 
-#: includes/class-settings.php:992
+#: includes/class-settings.php:892
 msgid "Refresh catalog"
 msgstr ""
 
-#: includes/class-settings.php:1000
+#: includes/class-settings.php:900
 msgid "Disconnect this publica.now account? The API credentials are revoked and deleted, and your catalog blocks stop rendering until you connect again."
 msgstr ""
 
-#: includes/class-settings.php:1001
+#: includes/class-settings.php:901
 msgid "Disconnect"
 msgstr ""
 
 #. translators: %s: human time difference.
-#: includes/class-settings.php:1015
+#: includes/class-settings.php:915
 #, php-format
 msgid "Profile last checked %s ago."
 msgstr ""
 
-#: includes/class-settings.php:1040
+#: includes/class-settings.php:940
 msgid "Connecting registers a read-only API client with publica.now and stores its credentials on this site. Disconnecting revokes them."
 msgstr ""
 
-#: includes/class-settings.php:1042
+#: includes/class-settings.php:942
 msgid "publica.now terms of service"
 msgstr ""
 
-#: includes/class-settings.php:1044
+#: includes/class-settings.php:944
 msgid "publica.now privacy policy"
 msgstr ""
 
-#: includes/class-settings.php:1058
+#: includes/class-settings.php:958
 msgid "Save display defaults"
 msgstr ""
 
-#: includes/class-settings.php:1074
+#: includes/class-settings.php:974
 #: blocks/catalog/index.js:150
 msgid "Catalog"
 msgstr ""
 
-#: includes/class-settings.php:1075
+#: includes/class-settings.php:975
 msgid "A grid or list of your works. Block: “Publica.now Catalog”."
 msgstr ""
 
-#: includes/class-settings.php:1080
+#: includes/class-settings.php:980
 msgid "Single work"
 msgstr ""
 
-#: includes/class-settings.php:1081
+#: includes/class-settings.php:981
 msgid "One work as a card or an inline row. Block: “Publica.now Work”."
 msgstr ""
 
-#: includes/class-settings.php:1086
+#: includes/class-settings.php:986
 msgid "Buy button"
 msgstr ""
 
-#: includes/class-settings.php:1087
+#: includes/class-settings.php:987
 msgid "Just the button, anywhere in your text. Block: “Publica.now Buy Button”."
 msgstr ""
 
-#: includes/class-settings.php:1094
+#: includes/class-settings.php:994
 msgid "Use it"
 msgstr ""
 
-#: includes/class-settings.php:1095
+#: includes/class-settings.php:995
 msgid "In the block editor, search for “Publica.now” to insert a Catalog, a Work or a Buy Button. Anywhere else, use the shortcodes below."
 msgstr ""
 
-#: includes/class-settings.php:1098
+#: includes/class-settings.php:998
 msgid "Connect your account above and the examples will be filled in with your creator slug."
 msgstr ""
 
-#: includes/class-settings.php:1114
+#: includes/class-settings.php:1014
 msgid "Copy"
 msgstr ""
 
-#: includes/class-settings.php:1119
+#: includes/class-settings.php:1019
 msgid "Attributes:"
 msgstr ""
 
-#: includes/class-settings.php:1136
+#: includes/class-settings.php:1036
 msgid "New to Publica.now?"
 msgstr ""
 
-#: includes/class-settings.php:1137
-msgid "Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 20% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site."
+#: includes/class-settings.php:1037
+msgid "Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work, with no monthly fee; current service fees are published at publica.now/pricing. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site."
 msgstr ""
 
-#: includes/class-settings.php:1141
+#: includes/class-settings.php:1041
 msgid "Start selling on Publica.now"
 msgstr ""
 

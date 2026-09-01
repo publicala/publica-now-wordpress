@@ -1,8 +1,7 @@
 <?php
 /**
  * Settings → Publica.now: connect/disconnect, display defaults, the "use it"
- * cheatsheet, the on-ramp for creators not yet on publica.now, and the
- * one-time connect notice.
+ * cheatsheet, and the on-ramp for creators not yet on publica.now.
  *
  * @package PublicaNow
  */
@@ -30,16 +29,6 @@ final class Settings {
 	 * Connected creator snapshot (autoload yes).
 	 */
 	const CREATOR_OPTION = 'publicanow_creator';
-
-	/**
-	 * Activation timestamp option.
-	 */
-	const ACTIVATED_OPTION = 'publicanow_activated_at';
-
-	/**
-	 * Per-user meta set when the connect notice is dismissed.
-	 */
-	const NOTICE_META = 'publicanow_notice_dismissed';
 
 	/**
 	 * Settings page slug (options-general.php?page=publica-now).
@@ -438,12 +427,10 @@ final class Settings {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_fields' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
-		add_action( 'admin_notices', array( $this, 'connect_notice' ) );
 
 		add_action( 'admin_post_publicanow_connect', array( $this, 'handle_connect' ) );
 		add_action( 'admin_post_publicanow_disconnect', array( $this, 'handle_disconnect' ) );
 		add_action( 'admin_post_publicanow_refresh', array( $this, 'handle_refresh' ) );
-		add_action( 'admin_post_publicanow_dismiss_notice', array( $this, 'handle_dismiss_notice' ) );
 	}
 
 	/**
@@ -687,68 +674,6 @@ final class Settings {
 		);
 	}
 
-	/**
-	 * The one-time notice after activation, shown until connected or dismissed.
-	 *
-	 * @return void
-	 */
-	public function connect_notice() {
-		if ( ! current_user_can( self::CAPABILITY ) || self::is_connected() ) {
-			return;
-		}
-
-		if ( ! get_option( self::ACTIVATED_OPTION ) ) {
-			return;
-		}
-
-		if ( get_user_meta( get_current_user_id(), self::NOTICE_META, true ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( $screen && 'settings_page_' . self::PAGE === $screen->id ) {
-			return;
-		}
-
-		$dismiss_url = wp_nonce_url(
-			add_query_arg(
-				array(
-					'action'   => 'publicanow_dismiss_notice',
-					'redirect' => rawurlencode( self::current_admin_url() ),
-				),
-				admin_url( 'admin-post.php' )
-			),
-			'publicanow_dismiss_notice'
-		);
-
-		echo '<div class="notice notice-info publicanow-notice"><p>';
-		echo '<strong>' . esc_html__( 'Publica.now is ready.', 'publica-now' ) . '</strong> ';
-		echo esc_html__( 'Connect your publica.now account to start showing your books on this site.', 'publica-now' );
-		echo '</p><p>';
-		printf(
-			'<a class="button button-primary" href="%s">%s</a> ',
-			esc_url( $this->page_url() ),
-			esc_html__( 'Connect now', 'publica-now' )
-		);
-		printf(
-			'<a class="button-link" href="%s">%s</a>',
-			esc_url( $dismiss_url ),
-			esc_html__( 'Dismiss', 'publica-now' )
-		);
-		echo '</p></div>';
-	}
-
-	/**
-	 * Current admin URL for post-dismiss redirects (path + query only).
-	 *
-	 * @return string
-	 */
-	private static function current_admin_url(): string {
-		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-
-		return '' === $uri ? admin_url() : $uri;
-	}
-
 	/*
 	 * ---------------------------------------------------------------------
 	 * admin-post handlers (no-JS fallbacks; the JS path uses REST).
@@ -813,31 +738,6 @@ final class Settings {
 		}
 
 		$this->finish( 'success', __( 'Catalog refreshed.', 'publica-now' ) );
-	}
-
-	/**
-	 * Dismiss the connect notice for the current user.
-	 *
-	 * @return void
-	 */
-	public function handle_dismiss_notice() {
-		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You are not allowed to do that.', 'publica-now' ), 403 );
-		}
-
-		check_admin_referer( 'publicanow_dismiss_notice' );
-
-		update_user_meta( get_current_user_id(), self::NOTICE_META, time() );
-
-		$redirect = isset( $_GET['redirect'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['redirect'] ) ) ) : '';
-
-		// Only a site-relative path is accepted; wp_safe_redirect() rejects foreign hosts anyway.
-		if ( '' === $redirect || '/' !== substr( $redirect, 0, 1 ) ) {
-			$redirect = admin_url();
-		}
-
-		wp_safe_redirect( $redirect );
-		exit;
 	}
 
 	/**
@@ -1134,7 +1034,7 @@ final class Settings {
 	private function render_onramp_section() {
 		echo '<section class="publicanow-section publicanow-onramp" id="publicanow-new">';
 		echo '<h2>' . esc_html__( 'New to Publica.now?', 'publica-now' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work and pay 20% + $0.30 per sale, with no monthly fee. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site.', 'publica-now' ) . '</p>';
+		echo '<p>' . esc_html__( 'Publica.now is where independent creators publish and sell ebooks (PDF and EPUB), audiobooks, music, video, courses and print-on-demand books directly to their readers. You keep control of your work, with no monthly fee; current service fees are published at publica.now/pricing. Buyers pay on publica.now, which handles checkout, delivery and printing, and read or listen in the built-in reader on any device. This plugin then brings that catalog back onto your own WordPress site.', 'publica-now' ) . '</p>';
 		printf(
 			'<p><a class="button button-primary" href="%s" target="_blank" rel="noopener">%s</a></p>',
 			esc_url( self::signup_url() ),

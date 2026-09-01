@@ -18,7 +18,7 @@ Connecting is a real account link, not an embed code. When you click **Connect**
 
 Blocks and shortcodes render that data — cover, title, author, format badge, price with the sale price struck through, rating — with a **Buy**, **Read free** or **Order paperback** button. Those buttons hand the reader to publica.now, the store of record: your site never processes a payment, stores a file or holds buyer data. Every outbound link carries this site's host name, so publica.now attributes the sale back to your website.
 
-Not on publica.now yet? An account is free and there is no monthly fee: publica.now takes 20% plus USD 0.30 per paid sale and pays out monthly through Stripe. See [publica.now/pricing](https://publica.now/pricing) and [publica.now/access/creator](https://publica.now/access/creator).
+Not on publica.now yet? An account is free and there is no monthly fee. Current service fees are published at [publica.now/pricing](https://publica.now/pricing); create an account at [publica.now/access/creator](https://publica.now/access/creator).
 
 No e-commerce runs on WordPress: no cart, checkout, downloads or buyer records, no WooCommerce, no tracking scripts, no advertising.
 
@@ -57,7 +57,7 @@ Nothing is sent to publica.now until you click **Connect**. **Disconnect**, on t
 
 = Does the plugin charge anything? =
 
-No. The plugin is free and GPL. publica.now charges 20% plus USD 0.30 per paid sale and no monthly fee: https://publica.now/pricing
+No. The plugin is free and GPL. Publica.now has no monthly fee; current service fees are published at https://publica.now/pricing
 
 = Where do readers pay, and who supports them? =
 
