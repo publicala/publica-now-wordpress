@@ -206,12 +206,6 @@
 	max-width: 68ch;
 }
 
-/* Activation notice */
-
-.publicanow-notice .button-link {
-	margin-inline-start: 8px;
-}
-
 @media (max-width: 782px) {
 	.publicanow-card {
 		flex-direction: column;

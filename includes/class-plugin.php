@@ -159,16 +159,11 @@ final class Plugin {
 	}
 
 	/**
-	 * Activation for the current site: remember the moment (drives the
-	 * one-time connect notice) and seed defaults without overwriting.
+	 * Activation for the current site: seed defaults without overwriting.
 	 *
 	 * @return void
 	 */
 	public static function activate() {
-		if ( ! get_option( Settings::ACTIVATED_OPTION ) ) {
-			add_option( Settings::ACTIVATED_OPTION, time() );
-		}
-
 		// add_option is a no-op when the option exists: a re-activation keeps the admin's choices.
 		add_option( Settings::OPTION, Settings::defaults() );
 		add_option( Cache::GENERATION_OPTION, 1 );
