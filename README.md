@@ -7,7 +7,7 @@ reader, print fulfilment, payouts). On the WordPress side it is a discovery and 
 surface (blocks and shortcodes) plus an on-ramp for creators who have a site and no
 publisher yet.
 
-- WordPress.org slug: `publica-now` (listing pending; see `docs/SUBMISSION.md`)
+- WordPress.org: [Publica.now](https://wordpress.org/plugins/publica-now/) (slug `publica-now`)
 - Requires WordPress 6.2+, PHP 7.4+. Tested up to WordPress 7.1.
 - License: GPL-2.0-or-later (`LICENSE`)
 - Build contract: [`docs/PLAN.md`](docs/PLAN.md) — binding for identifiers, options, hooks and shapes
