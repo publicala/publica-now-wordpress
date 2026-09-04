@@ -28,20 +28,31 @@ jobs:
   php:
     name: PHP ${{ matrix.php }} lint + PHPCS
     runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.3']
+        include:
+          - php: '7.4'
+            image: php:7.4.33-cli-bullseye@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5
+          - php: '8.3'
+            image: php:8.3.33-cli-bookworm@sha256:177529735599a8244b2c903522f029839dce1c2ac4be122fdc00ada4b45a20e4
     steps:
+      - name: Install container tools
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git unzip
+
       - name: Check out
         uses: actions/checkout@v7
 
       - name: Set up PHP ${{ matrix.php }}
-        uses: shivammathur/setup-php@v2
+        uses: publicala/php-ci-static@fc169029d2f6e171412cef0bdede36437aa5e077 # v1.9.0
         with:
           php-version: ${{ matrix.php }}
-          coverage: none
-          tools: composer:v2
+          runtime: system
         env:
           # Composer uses this to raise the GitHub API rate limit when resolving packages.
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -109,18 +120,26 @@ jobs:
   build:
     name: Build distributable zip
     runs-on: ubuntu-latest
+    container:
+      image: php:7.4.33-cli-bullseye@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5
+    defaults:
+      run:
+        shell: bash
     needs: [php, javascript]
     outputs:
       version: ${{ steps.build.outputs.version }}
     steps:
+      - name: Install container tools
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
+
       - name: Check out
         uses: actions/checkout@v7
 
       - name: Set up PHP (for php -l inside the build script)
-        uses: shivammathur/setup-php@v2
+        uses: publicala/php-ci-static@fc169029d2f6e171412cef0bdede36437aa5e077 # v1.9.0
         with:
           php-version: '7.4'
-          coverage: none
+          runtime: system
 
       - name: Build
         id: build
