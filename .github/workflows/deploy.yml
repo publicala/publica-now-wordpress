@@ -48,7 +48,15 @@ jobs:
     name: Release ${{ github.event.release.tag_name || 'dry run' }} to SVN
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    container:
+      image: php:7.4.33-cli-bullseye@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: Install container tools
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
+
       # Before approval the SVN credentials do not exist yet, and that is the
       # normal state — not a broken build. Failing here would paint main red
       # on every readme change until the plugin is approved, which is exactly
@@ -72,9 +80,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up PHP (for php -l inside the build script)
-        uses: publicala/php-ci-static@v1
+        uses: publicala/php-ci-static@92a45fbb90d753cd14c2eefdb6c0ddb6f83ac9db # v1.9.0 candidate
         with:
-          php-version: '8.3'
+          php-version: '7.4'
+          runtime: system
 
       # build-zip.sh already refuses to run when the Version header, the
       # PUBLICANOW_VERSION constant and the readme Stable tag disagree.

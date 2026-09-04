@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up PHP ${{ matrix.php }}
-        uses: publicala/php-ci-static@2c0c05d9fa46b77b34b199f7a76e3b8ae75e7991 # v1.9.0 candidate
+        uses: publicala/php-ci-static@92a45fbb90d753cd14c2eefdb6c0ddb6f83ac9db # v1.9.0 candidate
         with:
           php-version: ${{ matrix.php }}
           runtime: system
@@ -120,17 +120,26 @@ jobs:
   build:
     name: Build distributable zip
     runs-on: ubuntu-latest
+    container:
+      image: php:7.4.33-cli-bullseye@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5
+    defaults:
+      run:
+        shell: bash
     needs: [php, javascript]
     outputs:
       version: ${{ steps.build.outputs.version }}
     steps:
+      - name: Install container tools
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
+
       - name: Check out
         uses: actions/checkout@v7
 
       - name: Set up PHP (for php -l inside the build script)
-        uses: publicala/php-ci-static@v1
+        uses: publicala/php-ci-static@92a45fbb90d753cd14c2eefdb6c0ddb6f83ac9db # v1.9.0 candidate
         with:
-          php-version: '8.3'
+          php-version: '7.4'
+          runtime: system
 
       - name: Build
         id: build
