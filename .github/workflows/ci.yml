@@ -28,20 +28,31 @@ jobs:
   php:
     name: PHP ${{ matrix.php }} lint + PHPCS
     runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.3']
+        include:
+          - php: '7.4'
+            image: php:7.4.33-cli-bullseye@sha256:620a6b9f4d4feef2210026172570465e9d0c1de79766418d3affd09190a7fda5
+          - php: '8.3'
+            image: php:8.3.33-cli-bookworm@sha256:177529735599a8244b2c903522f029839dce1c2ac4be122fdc00ada4b45a20e4
     steps:
+      - name: Install container tools
+        run: apt-get update -qq && apt-get install -y --no-install-recommends git unzip
+
       - name: Check out
         uses: actions/checkout@v7
 
       - name: Set up PHP ${{ matrix.php }}
-        uses: shivammathur/setup-php@v2
+        uses: publicala/php-ci-static@2c0c05d9fa46b77b34b199f7a76e3b8ae75e7991 # v1.9.0 candidate
         with:
           php-version: ${{ matrix.php }}
-          coverage: none
-          tools: composer:v2
+          runtime: system
         env:
           # Composer uses this to raise the GitHub API rate limit when resolving packages.
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,10 +128,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up PHP (for php -l inside the build script)
-        uses: shivammathur/setup-php@v2
+        uses: publicala/php-ci-static@v1
         with:
-          php-version: '7.4'
-          coverage: none
+          php-version: '8.3'
 
       - name: Build
         id: build

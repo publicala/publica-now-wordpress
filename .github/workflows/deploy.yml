@@ -72,10 +72,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up PHP (for php -l inside the build script)
-        uses: shivammathur/setup-php@v2
+        uses: publicala/php-ci-static@v1
         with:
-          php-version: '7.4'
-          coverage: none
+          php-version: '8.3'
 
       # build-zip.sh already refuses to run when the Version header, the
       # PUBLICANOW_VERSION constant and the readme Stable tag disagree.
