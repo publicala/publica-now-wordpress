@@ -42,8 +42,16 @@ jobs:
           - php: '8.3'
             image: php:8.3.33-cli-bookworm@sha256:177529735599a8244b2c903522f029839dce1c2ac4be122fdc00ada4b45a20e4
     steps:
+      # Debian 11 (bullseye) security packages live on archive.debian.org only.
+      # deb.debian.org still serves the bullseye-security index, but its pool
+      # answers 404, so apt-get install fails even after apt-get update.
       - name: Install container tools
-        run: apt-get update -qq && apt-get install -y --no-install-recommends git unzip
+        run: |
+          . /etc/os-release
+          if [ "$VERSION_CODENAME" = bullseye ]; then
+            sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|' /etc/apt/sources.list
+          fi
+          apt-get update -qq && apt-get install -y --no-install-recommends git unzip
 
       - name: Check out
         uses: actions/checkout@v7
@@ -129,8 +137,13 @@ jobs:
     outputs:
       version: ${{ steps.build.outputs.version }}
     steps:
+      # Debian 11 (bullseye) security packages live on archive.debian.org only.
+      # deb.debian.org still serves the bullseye-security index, but its pool
+      # answers 404, so apt-get install fails even after apt-get update.
       - name: Install container tools
-        run: apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
+        run: |
+          sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|' /etc/apt/sources.list
+          apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
 
       - name: Check out
         uses: actions/checkout@v7
