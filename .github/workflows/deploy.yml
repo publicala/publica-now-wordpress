@@ -54,8 +54,13 @@ jobs:
       run:
         shell: bash
     steps:
+      # Debian 11 (bullseye) security packages live on archive.debian.org only.
+      # deb.debian.org still serves the bullseye-security index, but its pool
+      # answers 404, so apt-get install fails even after apt-get update.
       - name: Install container tools
-        run: apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
+        run: |
+          sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|' /etc/apt/sources.list
+          apt-get update -qq && apt-get install -y --no-install-recommends git rsync zip unzip
 
       # Before approval the SVN credentials do not exist yet, and that is the
       # normal state — not a broken build. Failing here would paint main red
