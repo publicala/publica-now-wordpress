@@ -13,7 +13,7 @@
     "url": "https://github.com/publicala/publica-now-wordpress/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "wp-env": "wp-env",
@@ -32,6 +32,6 @@
     "assets": "bash bin/make-assets.sh"
   },
   "devDependencies": {
-    "@wordpress/env": "^11.14.0"
+    "@wordpress/env": "^12.1.0"
   }
 }

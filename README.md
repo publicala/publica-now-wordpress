@@ -45,7 +45,7 @@ WordPress.
 
 - PHP 7.4+ (the plugin is written for 7.4; run it on 8.x too)
 - Composer 2
-- Node 20+ and Docker (for `wp-env`)
+- Node 22.13+ and Docker (for `wp-env`)
 
 ### Set up
 
